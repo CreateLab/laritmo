@@ -1,0 +1,1526 @@
+basePath: /
+definitions:
+  handlers.BulkCreateJSONRequest:
+    properties:
+      course_id:
+        type: integer
+      questions:
+        items:
+          properties:
+            number:
+              type: integer
+            question:
+              type: string
+            section:
+              type: string
+          required:
+          - number
+          - question
+          - section
+          type: object
+        type: array
+    required:
+    - course_id
+    - questions
+    type: object
+  handlers.CreateCourseRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      semester:
+        type: string
+    required:
+    - name
+    - semester
+    type: object
+  handlers.CreateExamQuestionRequest:
+    properties:
+      course_id:
+        type: integer
+      number:
+        type: integer
+      question:
+        type: string
+      section:
+        type: string
+    required:
+    - course_id
+    - number
+    - question
+    - section
+    type: object
+  handlers.CreateGradeSheetRequest:
+    properties:
+      course_id:
+        type: integer
+      description:
+        type: string
+      sheet_url:
+        type: string
+    required:
+    - course_id
+    - description
+    - sheet_url
+    type: object
+  handlers.CreateLabRequest:
+    properties:
+      course_id:
+        type: integer
+      deadline:
+        type: string
+      description:
+        type: string
+      github_url:
+        type: string
+      max_score:
+        type: integer
+      number:
+        type: integer
+      title:
+        type: string
+    required:
+    - course_id
+    - description
+    - max_score
+    - number
+    - title
+    type: object
+  handlers.CreateLectureRequest:
+    properties:
+      content:
+        type: string
+      course_id:
+        type: integer
+      github_url:
+        type: string
+      title:
+        type: string
+      week:
+        type: integer
+    required:
+    - content
+    - course_id
+    - title
+    - week
+    type: object
+  handlers.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  handlers.LoginResponse:
+    properties:
+      token:
+        type: string
+      user:
+        properties:
+          email:
+            type: string
+          id:
+            type: integer
+          role:
+            type: string
+          username:
+            type: string
+        type: object
+    type: object
+  handlers.UpdateCourseRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      semester:
+        type: string
+    required:
+    - name
+    - semester
+    type: object
+  handlers.UpdateExamQuestionRequest:
+    properties:
+      number:
+        type: integer
+      question:
+        type: string
+      section:
+        type: string
+    required:
+    - number
+    - question
+    - section
+    type: object
+  handlers.UpdateGradeSheetRequest:
+    properties:
+      description:
+        type: string
+      sheet_url:
+        type: string
+    required:
+    - description
+    - sheet_url
+    type: object
+  handlers.UpdateLabRequest:
+    properties:
+      course_id:
+        type: integer
+      deadline:
+        type: string
+      description:
+        type: string
+      github_url:
+        type: string
+      max_score:
+        type: integer
+      number:
+        type: integer
+      title:
+        type: string
+    required:
+    - course_id
+    - description
+    - max_score
+    - number
+    - title
+    type: object
+  handlers.UpdateLectureRequest:
+    properties:
+      content:
+        type: string
+      course_id:
+        type: integer
+      github_url:
+        type: string
+      title:
+        type: string
+      week:
+        type: integer
+    required:
+    - content
+    - course_id
+    - title
+    - week
+    type: object
+  models.Course:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      semester:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.ExamQuestion:
+    properties:
+      course_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      number:
+        type: integer
+      question:
+        type: string
+      section:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.GradeSheet:
+    properties:
+      course_id:
+        type: integer
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      sheet_url:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.Lab:
+    properties:
+      course_id:
+        type: integer
+      created_at:
+        type: string
+      deadline:
+        type: string
+      description:
+        type: string
+      github_url:
+        type: string
+      id:
+        type: integer
+      max_score:
+        type: integer
+      number:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.Lecture:
+    properties:
+      content:
+        type: string
+      course_id:
+        type: integer
+      created_at:
+        type: string
+      github_url:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+      week:
+        type: integer
+    type: object
+host: localhost:8443
+info:
+  contact:
+    email: support@laritmo.local
+    name: API Support
+  description: Educational portal API with course management
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Laritmo API
+  version: "1.0"
+paths:
+  /api/admin/courses:
+    post:
+      consumes:
+      - application/json
+      description: Create a new course
+      parameters:
+      - description: Course data
+        in: body
+        name: course
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateCourseRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Course'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create course
+      tags:
+      - admin-courses
+  /api/admin/courses/{id}:
+    delete:
+      description: Delete course by ID
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete course
+      tags:
+      - admin-courses
+    put:
+      consumes:
+      - application/json
+      description: Update course by ID
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Course data
+        in: body
+        name: course
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateCourseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update course
+      tags:
+      - admin-courses
+  /api/admin/exam-questions:
+    post:
+      consumes:
+      - application/json
+      description: Create a new exam question (admin only)
+      parameters:
+      - description: Exam question data
+        in: body
+        name: question
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateExamQuestionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ExamQuestion'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create exam question
+      tags:
+      - admin-exam-questions
+  /api/admin/exam-questions/{id}:
+    delete:
+      description: Delete exam question by ID (admin only)
+      parameters:
+      - description: Exam Question ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete exam question
+      tags:
+      - admin-exam-questions
+    put:
+      consumes:
+      - application/json
+      description: Update exam question by ID (admin only)
+      parameters:
+      - description: Exam Question ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Exam question data
+        in: body
+        name: question
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateExamQuestionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update exam question
+      tags:
+      - admin-exam-questions
+  /api/admin/exam-questions/bulk:
+    post:
+      consumes:
+      - application/json
+      description: Create multiple exam questions from JSON payload (admin only)
+      parameters:
+      - description: Bulk exam questions data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.BulkCreateJSONRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Bulk create exam questions from JSON
+      tags:
+      - admin-exam-questions
+  /api/admin/exam-questions/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload exam questions from JSON or CSV file (admin only)
+      parameters:
+      - description: Course ID
+        in: formData
+        name: course_id
+        required: true
+        type: integer
+      - description: JSON or CSV file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Bulk upload exam questions from file
+      tags:
+      - admin-exam-questions
+  /api/admin/grade-sheets:
+    post:
+      consumes:
+      - application/json
+      description: Create a new grade sheet (admin only)
+      parameters:
+      - description: Grade sheet data
+        in: body
+        name: gradesheet
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateGradeSheetRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.GradeSheet'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create grade sheet
+      tags:
+      - admin-gradesheets
+  /api/admin/grade-sheets/{id}:
+    delete:
+      description: Delete grade sheet by ID (admin only)
+      parameters:
+      - description: Grade Sheet ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete grade sheet
+      tags:
+      - admin-gradesheets
+    put:
+      consumes:
+      - application/json
+      description: Update grade sheet by ID (admin only)
+      parameters:
+      - description: Grade Sheet ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Grade sheet data
+        in: body
+        name: gradesheet
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateGradeSheetRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update grade sheet
+      tags:
+      - admin-gradesheets
+  /api/admin/labs:
+    post:
+      consumes:
+      - application/json
+      description: Create a new lab
+      parameters:
+      - description: Lab data
+        in: body
+        name: lab
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateLabRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Lab'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create lab
+      tags:
+      - admin-labs
+  /api/admin/labs/{id}:
+    delete:
+      description: Delete lab by ID
+      parameters:
+      - description: Lab ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete lab
+      tags:
+      - admin-labs
+    put:
+      consumes:
+      - application/json
+      description: Update lab by ID
+      parameters:
+      - description: Lab ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Lab data
+        in: body
+        name: lab
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateLabRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update lab
+      tags:
+      - admin-labs
+  /api/admin/lectures:
+    post:
+      consumes:
+      - application/json
+      description: Create a new lecture
+      parameters:
+      - description: Lecture data
+        in: body
+        name: lecture
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateLectureRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Lecture'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create lecture
+      tags:
+      - admin-lectures
+  /api/admin/lectures/{id}:
+    delete:
+      description: Delete lecture by ID
+      parameters:
+      - description: Lecture ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete lecture
+      tags:
+      - admin-lectures
+    put:
+      consumes:
+      - application/json
+      description: Update lecture by ID
+      parameters:
+      - description: Lecture ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Lecture data
+        in: body
+        name: lecture
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateLectureRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update lecture
+      tags:
+      - admin-lectures
+  /api/courses:
+    get:
+      description: Get list of all courses
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Course'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all courses
+      tags:
+      - courses
+  /api/courses/{id}:
+    get:
+      description: Get course details by ID
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Course'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get course by ID
+      tags:
+      - courses
+  /api/exam-questions:
+    get:
+      description: Get list of all exam questions with optional course filter
+      parameters:
+      - description: Course ID filter
+        in: query
+        name: course_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ExamQuestion'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all exam questions
+      tags:
+      - exam-questions
+  /api/exam-questions/{id}:
+    get:
+      description: Get exam question details by ID
+      parameters:
+      - description: Exam Question ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ExamQuestion'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get exam question by ID
+      tags:
+      - exam-questions
+  /api/grade-sheets:
+    get:
+      description: Get list of all grade sheets with optional course filter
+      parameters:
+      - description: Course ID filter
+        in: query
+        name: course_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.GradeSheet'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all grade sheets
+      tags:
+      - grade-sheets
+  /api/grade-sheets/{id}:
+    get:
+      description: Get grade sheet details by ID
+      parameters:
+      - description: Grade Sheet ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GradeSheet'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get grade sheet by ID
+      tags:
+      - grade-sheets
+  /api/labs:
+    get:
+      description: Get list of all labs with optional course filter
+      parameters:
+      - description: Course ID filter
+        in: query
+        name: course_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Lab'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all labs
+      tags:
+      - labs
+  /api/labs/{id}:
+    get:
+      description: Get lab details by ID
+      parameters:
+      - description: Lab ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Lab'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get lab by ID
+      tags:
+      - labs
+  /api/lectures:
+    get:
+      description: Get list of all lectures with optional course filter
+      parameters:
+      - description: Course ID filter
+        in: query
+        name: course_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Lecture'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all lectures
+      tags:
+      - lectures
+  /api/lectures/{id}:
+    get:
+      description: Get lecture details by ID
+      parameters:
+      - description: Lecture ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Lecture'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get lecture by ID
+      tags:
+      - lectures
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: User login
+      tags:
+      - auth
+schemes:
+- https
+- http
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

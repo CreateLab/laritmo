@@ -1,0 +1,18 @@
+server:
+  host: localhost
+  mode: debug
+  port: 8443  # или :443 для прода
+  use_tls: true
+  tls_cert_file: "./certs/localhost.pem"
+  tls_key_file: "./certs/localhost-key.pem"
+
+database:
+  host: localhost
+  port: 3306
+  user: eduuser
+  password: edupass
+  name: edu_portal
+
+auth:
+  jwt_secret: "super-secret-key-change-in-production-abc123"
+  jwt_expiration_hours: 168
