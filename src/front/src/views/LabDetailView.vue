@@ -36,6 +36,21 @@
           Открыть на GitHub
         </a>
       </div>
+
+      <div v-if="authStore.isAdmin" class="flex gap-4 mt-4">
+        <button
+            @click="editLab"
+            class="px-4 py-2 bg-forest-green text-white rounded-lg hover:bg-forest-dark transition-colors"
+        >
+          ✏️ Редактировать
+        </button>
+        <button
+            @click="deleteLab"
+            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+        >
+          🗑️ Удалить
+        </button>
+      </div>
     </header>
 
     <main>
@@ -53,6 +68,13 @@
           v-html="renderedContent"
       ></div>
     </main>
+
+    <LabEditDialog
+        v-model="showEditDialog"
+        :lab="lab"
+        :course-id="Number(courseId)"
+        @saved="handleLabSaved"
+    />
   </div>
 </template>
 
@@ -63,16 +85,45 @@ import { labsApi, type Lab } from '@/api/labs'
 import { marked, Renderer } from 'marked'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/github.css'
+import { useAuthStore } from '@/stores/auth'
+import LabEditDialog from '@/components/LabEditDialog.vue'
 
 const route = useRoute()
 const router = useRouter()
 const lab = ref<Lab | null>(null)
 const loading = ref(true)
+const authStore = useAuthStore()
+const showEditDialog = ref(false)
 
 const courseId = route.params.courseId
 
 const goBack = () => {
   router.push(`/courses/${courseId}`)
+}
+
+const editLab = () => {
+  showEditDialog.value = true
+}
+
+const deleteLab = async () => {
+  if (!confirm('Удалить лабораторную работу?')) return
+
+  try {
+    await labsApi.delete(Number(route.params.id))
+    router.push(`/courses/${courseId}`)
+  } catch (error) {
+    console.error('Failed to delete:', error)
+    alert('Ошибка удаления лабораторной работы')
+  }
+}
+
+const handleLabSaved = async () => {
+  try {
+    const { data } = await labsApi.getById(Number(route.params.id))
+    lab.value = data
+  } catch (error) {
+    console.error('Failed to load:', error)
+  }
 }
 
 const formatDate = (dateString: string) => {

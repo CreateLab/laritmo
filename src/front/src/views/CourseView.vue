@@ -85,6 +85,15 @@
 
         <!-- Таб: Лабораторные -->
         <TabPanel header="🔬 Лабораторные" value="labs">
+          <div v-if="authStore.isAdmin" class="mb-4">
+            <button
+                @click="addLab"
+                class="px-4 py-2 bg-forest-green text-white rounded-lg hover:bg-forest-dark transition-colors"
+            >
+              ➕ Добавить лабораторную
+            </button>
+          </div>
+
           <div v-if="labsLoading" class="text-center py-8">
             <p class="text-gray-600">Загрузка лаб...</p>
           </div>
@@ -121,6 +130,15 @@
 
         <!-- Таб: Журнал -->
         <TabPanel header="📊 Журнал" value="grades">
+          <div v-if="authStore.isAdmin" class="mb-4">
+            <button
+                @click="addOrEditGradeSheet"
+                class="px-4 py-2 bg-forest-green text-white rounded-lg hover:bg-forest-dark transition-colors"
+            >
+              {{ gradeSheets.length > 0 ? '✏️ Изменить ссылку на журнал' : '➕ Добавить ссылку на журнал' }}
+            </button>
+          </div>
+
           <div v-if="gradeSheetsLoading" class="text-center py-8">
             <p class="text-gray-600">Загрузка...</p>
           </div>
@@ -131,21 +149,21 @@
 
           <div v-else class="space-y-3">
             <a
-            v-for="sheet in gradeSheets"
-            :key="sheet.id"
-            :href="sheet.sheet_url"
-            target="_blank"
-            class="block bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow border-2 border-transparent hover:border-forest-mint"
+                v-for="sheet in gradeSheets"
+                :key="sheet.id"
+                :href="sheet.sheet_url"
+                target="_blank"
+                class="block bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow border-2 border-transparent hover:border-forest-mint"
             >
-            <div class="flex items-center gap-3">
-              <div class="text-2xl">📊</div>
-              <div class="flex-1">
-                <h3 class="font-semibold text-forest-dark">
-                  {{ sheet.description || 'Google Sheets журнал' }}
-                </h3>
-                <p class="text-sm text-forest-green">Открыть журнал →</p>
+              <div class="flex items-center gap-3">
+                <div class="text-2xl">📊</div>
+                <div class="flex-1">
+                  <h3 class="font-semibold text-forest-dark">
+                    {{ sheet.description || 'Google Sheets журнал' }}
+                  </h3>
+                  <p class="text-sm text-forest-green">Открыть журнал →</p>
+                </div>
               </div>
-            </div>
             </a>
           </div>
         </TabPanel>
@@ -226,6 +244,13 @@
         @saved="handleLectureSaved"
     />
 
+    <LabEditDialog
+        v-model="showLabDialog"
+        :lab="editingLab"
+        :course-id="courseId"
+        @saved="handleLabSaved"
+    />
+
     <ExamQuestionEditDialog
         v-model="showExamQuestionDialog"
         :question="editingExamQuestion"
@@ -237,6 +262,13 @@
         v-model="showBulkUpload"
         :course-id="courseId"
         @saved="handleExamQuestionSaved"
+    />
+
+    <GradeSheetEditDialog
+        v-model="showGradeSheetDialog"
+        :grade-sheet="editingGradeSheet"
+        :course-id="courseId"
+        @saved="handleGradeSheetSaved"
     />
   </div>
 </template>
@@ -254,6 +286,8 @@ import TabPanel from 'primevue/tabpanel'
 import CourseEditDialog from '@/components/CourseEditDialog.vue'
 import { useAuthStore } from '@/stores/auth'
 import LectureEditDialog from '@/components/LectureEditDialog.vue'
+import LabEditDialog from '@/components/LabEditDialog.vue'
+import GradeSheetEditDialog from '@/components/GradeSheetEditDialog.vue'
 import ExamQuestionEditDialog from '@/components/ExamQuestionEditDialog.vue'
 import ExamQuestionBulkUpload from '@/components/ExamQuestionBulkUpload.vue'
 
@@ -280,6 +314,12 @@ const authStore = useAuthStore()
 
 const showLectureDialog = ref(false)
 const editingLecture = ref<Lecture | null>(null)
+
+const showLabDialog = ref(false)
+const editingLab = ref<Lab | null>(null)
+
+const showGradeSheetDialog = ref(false)
+const editingGradeSheet = ref<GradeSheet | null>(null)
 
 const showExamQuestionDialog = ref(false)
 const showBulkUpload = ref(false)
@@ -325,6 +365,34 @@ const goToLab = (labId: number) => {
   router.push({
     path: `/courses/${courseId}/labs/${labId}`,
   })
+}
+
+const addLab = () => {
+  editingLab.value = null
+  showLabDialog.value = true
+}
+
+const handleLabSaved = async () => {
+  try {
+    const { data } = await labsApi.getAll(courseId)
+    labs.value = data.sort((a, b) => a.number - b.number)
+  } catch (error) {
+    console.error('Failed to load labs:', error)
+  }
+}
+
+const addOrEditGradeSheet = () => {
+  editingGradeSheet.value = gradeSheets.value.length > 0 ? (gradeSheets.value[0] ?? null) : null
+  showGradeSheetDialog.value = true
+}
+
+const handleGradeSheetSaved = async () => {
+  try {
+    const { data } = await gradeSheetsApi.getAll(courseId)
+    gradeSheets.value = data
+  } catch (error) {
+    console.error('Failed to load grade sheets:', error)
+  }
 }
 
 const handleLectureSaved = async () => {
