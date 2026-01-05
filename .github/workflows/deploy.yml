@@ -33,10 +33,10 @@ jobs:
             EOF
             
             # Останавливаем старые контейнеры
-            docker-compose -f docker-compose.prod.yml down
+            docker compose -f docker-compose.prod.yml down
             
             # Билдим и запускаем новые
-            docker-compose -f docker-compose.prod.yml up -d --build
+            docker compose -f docker-compose.prod.yml up -d --build
             
             # Показываем статус
             docker-compose -f docker-compose.prod.yml ps
