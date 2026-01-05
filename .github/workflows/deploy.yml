@@ -1,0 +1,45 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main  # Деплой при пуше в main
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            # Переходим в директорию проекта
+            cd /opt/laritmo
+            
+            # Пулим последние изменения
+            git pull origin main
+            
+            # Создаем .env файл с секретами
+            cat > .env << EOF
+            LARITMO_DATABASE_PASSWORD=${{ secrets.LARITMO_DATABASE_PASSWORD }}
+            LARITMO_AUTH_JWT_SECRET=${{ secrets.LARITMO_AUTH_JWT_SECRET }}
+            MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+            EOF
+            
+            # Останавливаем старые контейнеры
+            docker-compose -f docker-compose.prod.yml down
+            
+            # Билдим и запускаем новые
+            docker-compose -f docker-compose.prod.yml up -d --build
+            
+            # Показываем статус
+            docker-compose -f docker-compose.prod.yml ps
+            
+            # Чистим старые образы
+            docker image prune -f

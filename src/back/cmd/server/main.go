@@ -50,7 +50,13 @@ func main() {
 
 	ctx := context.Background()
 
-	cfg, err := config.Load("configs/config.local.yaml")
+	configPath := os.Getenv("CONFIG_PATH")
+
+	if configPath == "" {
+		configPath = "configs/config.local.yaml"
+	}
+
+	cfg, err := config.Load(configPath)
 	if err != nil {
 		slog.ErrorContext(ctx, "Failed to load config", "error", err)
 		os.Exit(1)
@@ -82,12 +88,6 @@ func main() {
 	gin.SetMode(cfg.Server.Mode)
 	r := gin.Default()
 
-	r.Static("/assets", "./web/assets")
-	r.StaticFile("/favicon.ico", "./web/favicon.ico")
-
-	r.NoRoute(func(c *gin.Context) {
-		c.File("./web/index.html")
-	})
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173", "https://localhost:5173"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
@@ -145,6 +145,13 @@ func main() {
 		admin.PUT("/exam-questions/:id", examQuestionHandler.Update)
 		admin.DELETE("/exam-questions/:id", examQuestionHandler.Delete)
 	}
+
+	r.Static("/assets", "./web/assets")
+	r.StaticFile("/favicon.ico", "./web/favicon.ico")
+
+	r.NoRoute(func(c *gin.Context) {
+		c.File("./web/index.html")
+	})
 
 	if cfg.Server.Mode == "debug" {
 		protocol := "http"

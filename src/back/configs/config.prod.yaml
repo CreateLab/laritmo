@@ -1,0 +1,16 @@
+server:
+  port: 8443
+  host: laritmo.com
+  mode: release
+  use_tls: true
+  tls_cert_file: /etc/letsencrypt/live/laritmo.com/fullchain.pem
+  tls_key_file: /etc/letsencrypt/live/laritmo.com/privkey.pem
+
+database:
+  host: db
+  port: 3306
+  user: laritmo
+  name: laritmo
+
+auth:
+  jwt_expiration_hours: 72

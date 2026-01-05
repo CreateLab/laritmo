@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laritmo-app
+    restart: unless-stopped
+    ports:
+      - "8443:8443"
+    environment:
+      - CONFIG_PATH=configs/config.prod.yaml
+      - LARITMO_SERVER_PORT=8443
+      - LARITMO_SERVER_HOST=${LARITMO_SERVER_HOST:-localhost}
+      - LARITMO_SERVER_MODE=release
+      - LARITMO_SERVER_USE_TLS=${LARITMO_SERVER_USE_TLS:-false}
+      - LARITMO_SERVER_TLS_CERT_FILE=${LARITMO_SERVER_TLS_CERT_FILE}
+      - LARITMO_SERVER_TLS_KEY_FILE=${LARITMO_SERVER_TLS_KEY_FILE}
+      - LARITMO_DATABASE_HOST=db
+      - LARITMO_DATABASE_PORT=3306
+      - LARITMO_DATABASE_USER=laritmo
+      - LARITMO_DATABASE_NAME=laritmo
+      - LARITMO_DATABASE_PASSWORD=${LARITMO_DATABASE_PASSWORD}
+      - LARITMO_AUTH_JWT_SECRET=${LARITMO_AUTH_JWT_SECRET}
+      - LARITMO_AUTH_JWT_EXPIRATION_HOURS=72
+    volumes:
+      - ${LETSENCRYPT_PATH:-/etc/letsencrypt}:/etc/letsencrypt:ro
+    depends_on:
+      - db
+    networks:
+      - laritmo-network
+
+  db:
+    image: mariadb:11.2
+    container_name: laritmo-db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=laritmo
+      - MYSQL_USER=laritmo
+      - MYSQL_PASSWORD=${LARITMO_DATABASE_PASSWORD}
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - laritmo-network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  laritmo-network:
+    driver: bridge
+
+volumes:
+  db-data:
