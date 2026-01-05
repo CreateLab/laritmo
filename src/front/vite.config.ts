@@ -10,7 +10,7 @@ export default defineConfig({
         },
     },
     build: {
-        outDir: '../back/web',
+        outDir: process.env.DOCKER_BUILD ? './dist' : '../back/web',
         emptyOutDir: true,
     },
 })

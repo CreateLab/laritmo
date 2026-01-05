@@ -10,11 +10,11 @@ RUN npm ci
 # Копируем весь фронтенд код
 COPY src/front/ ./
 
-# Билдим фронтенд (он соберется в ../back/web/)
-RUN npm run build
+# Билдим фронтенд с переменной окружения (он соберется в ./dist)
+RUN DOCKER_BUILD=true npm run build
 
 # Stage 2: Build backend
-FROM golang:1.25-alpine AS backend-builder
+FROM golang:1.23-alpine AS backend-builder
 
 WORKDIR /app
 
@@ -25,8 +25,8 @@ RUN go mod download
 # Копируем весь backend код
 COPY src/back/ ./
 
-# Копируем собранный фронтенд из первого stage
-COPY --from=frontend-builder /app/back/web ./web
+# Копируем собранный фронтенд из первого stage (теперь из правильного места!)
+COPY --from=frontend-builder /app/front/dist ./web
 
 # Билдим Go приложение
 RUN CGO_ENABLED=0 GOOS=linux go build -o /laritmo ./cmd/server
