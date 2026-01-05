@@ -6,7 +6,7 @@ type User struct {
 	ID           int       `json:"id"`
 	Email        string    `json:"email"`
 	Username     string    `json:"username"`
-	PasswordHash string    `json:"-"` // Не отдаем в JSON
+	PasswordHash string    `json:"-"` // Excluded from JSON response
 	Role         string    `json:"role"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`

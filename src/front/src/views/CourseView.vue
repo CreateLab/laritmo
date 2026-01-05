@@ -20,7 +20,6 @@
           <p class="text-gray-700 mt-2">{{ course.description }}</p>
         </div>
 
-        <!-- Кнопка админа для курса -->
         <div v-if="authStore.isAdmin">
           <button
               @click="editCourse"
@@ -40,8 +39,6 @@
 
     <main>
       <TabView v-if="!loading">
-        <!-- Таб: Лекции -->
-
         <TabPanel header="📚 Лекции" value="lectures">
 
           <div v-if="authStore.isAdmin" class="mb-4">
@@ -83,7 +80,6 @@
           </div>
         </TabPanel>
 
-        <!-- Таб: Лабораторные -->
         <TabPanel header="🔬 Лабораторные" value="labs">
           <div v-if="authStore.isAdmin" class="mb-4">
             <button
@@ -128,7 +124,6 @@
           </div>
         </TabPanel>
 
-        <!-- Таб: Журнал -->
         <TabPanel header="📊 Журнал" value="grades">
           <div v-if="authStore.isAdmin" class="mb-4">
             <button
@@ -168,9 +163,7 @@
           </div>
         </TabPanel>
 
-        <!-- Таб: Экзамен -->
         <TabPanel header="📝 Вопросы к экзамену" value="exam">
-          <!-- Кнопки админа -->
           <div v-if="authStore.isAdmin" class="flex gap-4 mb-4">
             <button
                 @click="addExamQuestion"
@@ -194,7 +187,6 @@
             <p class="text-gray-600">Вопросы пока не добавлены</p>
           </div>
 
-          <!-- Группировка по секциям -->
           <div v-else class="space-y-6">
             <div v-for="(questions, section) in groupedQuestions" :key="section">
               <h3 class="text-lg font-semibold text-forest-dark mb-3">{{ section }}</h3>

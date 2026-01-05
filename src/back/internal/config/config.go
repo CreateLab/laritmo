@@ -46,16 +46,13 @@ func (d DatabaseConfig) DSN() string {
 }
 
 func Load(configPath string) (*Config, error) {
-	// Настраиваем ENV
 	viper.SetEnvPrefix("LARITMO")
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
-	// ЯВНО БИНДИМ критичные переменные
 	viper.BindEnv("database.password", "LARITMO_DATABASE_PASSWORD")
 	viper.BindEnv("auth.jwt_secret", "LARITMO_AUTH_JWT_SECRET")
 
-	// Читаем файл
 	if configPath != "" {
 		viper.SetConfigFile(configPath)
 		viper.SetConfigType("yaml")
@@ -65,7 +62,6 @@ func Load(configPath string) (*Config, error) {
 		}
 	}
 
-	// Парсим конфиг
 	var cfg Config
 	if err := viper.Unmarshal(&cfg); err != nil {
 		return nil, fmt.Errorf("failed to parse config: %w", err)

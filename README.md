@@ -6,14 +6,15 @@ Educational portal with whimsical frog and mushroom theme. Built with Go and Vue
 
 - 📚 Course management (lectures, labs, grade sheets, exam questions)
 - 🔐 JWT authentication with role-based access (Admin/Student)
-- 🎨 Beautiful UI with mushroom and frog theme
+- 🎨 Beautiful UI with mushroom and frog theme with animations
 - 📱 Responsive design
 - 🔬 GitHub integration for lab assignments
 - 📝 Markdown support with syntax highlighting
+- 🐸 Frog animation on page load
 
 ## 🛠️ Tech Stack
 
-**Backend:** Go 1.23 + Gin + MariaDB  
+**Backend:** Go 1.25 + Gin + MariaDB  
 **Frontend:** Vue 3 + TypeScript + PrimeVue + Tailwind CSS
 
 ---
@@ -162,9 +163,9 @@ go run cmd/server/main.go
 
 You should see:
 ```
-{"level":"INFO","msg":"Конфиг загружен успешно"}
-{"level":"INFO","msg":"🚀 HTTPS сервер запущен","url":"https://localhost:8443"}
-{"level":"INFO","msg":"📚 Swagger UI доступен","url":"https://localhost:8443/swagger/index.html"}
+{"level":"INFO","msg":"Config loaded successfully"}
+{"level":"INFO","msg":"HTTPS server started","url":"https://localhost:8443"}
+{"level":"INFO","msg":"Swagger UI available","url":"https://localhost:8443/swagger/index.html"}
 ```
 
 ---
@@ -173,10 +174,12 @@ You should see:
 
 Open in browser:
 - **App**: https://localhost:8443
+- **Login Page**: https://localhost:8443/auth
 - **API Docs**: https://localhost:8443/swagger/index.html
 - **Health Check**: https://localhost:8443/health
 
-**Default Login:**
+**Login:**
+- Navigate to `/auth` to access the login page
 - Username: `admin` (or whatever you created with `createadmin`)
 - Password: `admin123` (or whatever you set)
 
@@ -270,7 +273,11 @@ Swagger UI available at: https://localhost:8443/swagger/index.html (debug mode o
 
 ## 🔐 Authentication
 
-Login with credentials → Receive JWT token → Token stored in localStorage → Automatically attached to requests
+Authentication is handled via a dedicated login page at `/auth`:
+1. Navigate to `/auth` to access the login form
+2. Enter credentials → Receive JWT token
+3. Token stored in localStorage → Automatically attached to requests
+4. Redirected to home page after successful login
 
 Admin features (Create/Edit/Delete) only visible when logged in as admin.
 
@@ -280,9 +287,10 @@ Admin features (Create/Edit/Delete) only visible when logged in as admin.
 
 Whimsical forest theme with:
 - 🍄 Mushroom icons and decorations
-- 🐸 Frog mascot
+- 🐸 Frog mascot with entrance animation
 - 🌿 Nature-inspired color palette
 - Playful yet educational design
+- Smooth animations and transitions
 
 ---
 

@@ -7,7 +7,6 @@ body {
     font-family: system-ui, -apple-system, sans-serif;
 }
 
-/* Анимация для жабки при открытии сайта */
 @keyframes frogJump {
     0% {
         transform: translateY(0) rotate(0deg) scale(0.8);

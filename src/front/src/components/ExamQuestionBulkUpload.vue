@@ -7,7 +7,6 @@
       @hide="onHide"
   >
     <TabView>
-      <!-- Вкладка: Загрузить файл -->
       <TabPanel header="📤 Загрузить файл" value="upload">
         <div class="space-y-4">
           <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -66,7 +65,6 @@
         </div>
       </TabPanel>
 
-      <!-- Вкладка: Вставить JSON -->
       <TabPanel header="📋 Вставить JSON" value="json">
         <div class="space-y-4">
           <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">

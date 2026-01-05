@@ -13,7 +13,6 @@ export const useAuthStore = defineStore('auth', () => {
     const token = ref<string | null>(localStorage.getItem('token'))
     const user = ref<User | null>(null)
 
-    // Восстанавливаем user при инициализации store
     const storedUser = localStorage.getItem('user')
     if (storedUser && storedUser !== 'undefined' && storedUser !== 'null') {
         try {

@@ -73,7 +73,6 @@ const handleLogin = async () => {
 
   try {
     await authStore.login(loginForm.value.username, loginForm.value.password)
-    // Редирект на главную страницу после успешного входа
     router.push('/')
   } catch (error: any) {
     loginError.value = error.response?.data?.error || 'Ошибка входа'
@@ -82,7 +81,6 @@ const handleLogin = async () => {
   }
 }
 
-// Если пользователь уже авторизован, редиректим на главную
 onMounted(() => {
   if (authStore.isAuthenticated) {
     router.push('/')

@@ -227,7 +227,6 @@ const onHide = () => {
 </script>
 
 <style>
-/* Стили для EasyMDE */
 .CodeMirror {
   height: 400px;
   border: 1px solid #d1d5db;
