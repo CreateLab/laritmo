@@ -70,6 +70,11 @@ jobs:
             
             # Создаем .env файл с секретами
             cat > .env << EOF
+            LARITMO_SERVER_HOST=laritmo.ru
+            LARITMO_SERVER_USE_TLS=true
+            LARITMO_SERVER_TLS_CERT_FILE=/etc/letsencrypt/live/laritmo.ru/fullchain.pem
+            LARITMO_SERVER_TLS_KEY_FILE=/etc/letsencrypt/live/laritmo.ru/privkey.pem
+            LETSENCRYPT_PATH=/etc/letsencrypt
             LARITMO_DATABASE_PASSWORD=${{ secrets.LARITMO_DATABASE_PASSWORD }}
             LARITMO_AUTH_JWT_SECRET=${{ secrets.LARITMO_AUTH_JWT_SECRET }}
             MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
