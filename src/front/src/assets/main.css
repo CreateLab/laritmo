@@ -6,3 +6,40 @@ body {
     @apply bg-forest-beige text-forest-dark;
     font-family: system-ui, -apple-system, sans-serif;
 }
+
+/* Анимация для жабки при открытии сайта */
+@keyframes frogJump {
+    0% {
+        transform: translateY(0) rotate(0deg) scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: translateY(-20px) rotate(-10deg) scale(1.1);
+        opacity: 1;
+    }
+    70% {
+        transform: translateY(5px) rotate(5deg) scale(1);
+    }
+    100% {
+        transform: translateY(0) rotate(0deg) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes frogBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.frog-animation {
+    animation: frogJump 1s ease-out forwards;
+    display: inline-block;
+}
+
+.frog-animation:hover {
+    animation: frogBounce 0.6s ease-in-out infinite;
+}

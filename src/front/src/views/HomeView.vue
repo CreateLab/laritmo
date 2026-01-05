@@ -2,7 +2,7 @@
   <div class="min-h-screen p-6">
     <header class="mb-8">
       <h1 class="text-4xl font-bold text-forest-dark flex items-center gap-2">
-        🐸 Laritmo
+        <span class="frog-animation">🐸</span> Laritmo
         <span class="text-sm font-normal text-gray-600">Forest Academy</span>
       </h1>
     </header>
