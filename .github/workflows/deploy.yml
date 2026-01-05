@@ -3,7 +3,7 @@ name: Deploy to Production
 on:
   push:
     branches:
-      - main  # Деплой при пуше в main
+      - master  # Деплой при пуше в master
 
 jobs:
   deploy:
@@ -23,7 +23,7 @@ jobs:
             cd /opt/laritmo
             
             # Пулим последние изменения
-            git pull origin main
+            git pull origin master
             
             # Создаем .env файл с секретами
             cat > .env << EOF
