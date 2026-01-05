@@ -5,9 +5,49 @@ on:
     branches:
       - master
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
+  build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix={{branch}}-
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
   deploy:
     name: Deploy to VPS
+    needs: build-and-push
     runs-on: ubuntu-latest
 
     steps:
@@ -19,22 +59,32 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 22
           script: |
-            # Клонируем репозиторий если его еще нет
-            if [ ! -d "/opt/laritmo" ]; then
-              cd /opt
-              git clone https://github.com/CreateLab/laritmo.git
+            # Создаем директорию если нет
+            mkdir -p /opt/laritmo
+            cd /opt/laritmo
+            
+            # Скачиваем docker-compose.prod.yml если его нет
+            if [ ! -f "docker-compose.prod.yml" ]; then
+              curl -o docker-compose.prod.yml https://raw.githubusercontent.com/${{ github.repository }}/master/docker-compose.prod.yml
             fi
             
-            cd /opt/laritmo
-            git pull origin master
-            
+            # Создаем .env файл с секретами
             cat > .env << EOF
             LARITMO_DATABASE_PASSWORD=${{ secrets.LARITMO_DATABASE_PASSWORD }}
             LARITMO_AUTH_JWT_SECRET=${{ secrets.LARITMO_AUTH_JWT_SECRET }}
             MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
             EOF
             
+            # Логинимся в GHCR
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            # Пуллим свежий образ
+            docker pull ghcr.io/${{ github.repository }}:latest
+            
+            # Перезапускаем контейнеры
             docker compose -f docker-compose.prod.yml down
-            docker compose -f docker-compose.prod.yml up -d --build
+            docker compose -f docker-compose.prod.yml up -d
             docker compose -f docker-compose.prod.yml ps
+            
+            # Чистим старые образы
             docker image prune -f
