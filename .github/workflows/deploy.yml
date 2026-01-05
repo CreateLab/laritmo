@@ -66,7 +66,6 @@ jobs:
             # Скачиваем docker-compose.prod.yml
             curl -o docker-compose.prod.yml https://raw.githubusercontent.com/${{ github.repository }}/master/docker-compose.prod.yml
             
-            
             # Создаем .env файл с секретами
             cat > .env << EOF
             LARITMO_SERVER_HOST=laritmo.ru
@@ -79,8 +78,8 @@ jobs:
             # Логинимся в GHCR
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
-            # Пуллим свежий образ
-            docker pull ghcr.io/${{ github.repository }}:latest
+            # Пуллим свежий образ (преобразуем в lowercase!)
+            docker pull ghcr.io/createlab/laritmo:latest
             
             # Перезапускаем контейнеры
             docker compose -f docker-compose.prod.yml down
