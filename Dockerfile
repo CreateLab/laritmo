@@ -44,6 +44,9 @@ RUN apk --no-cache add ca-certificates
 # Копируем бинарник
 COPY --from=backend-builder /laritmo /app/laritmo
 
+COPY --from=backend-builder /go/bin/goose /usr/local/bin/goose
+
+
 # Копируем необходимые файлы
 COPY --from=backend-builder /app/web ./web
 COPY --from=backend-builder /app/configs ./configs
