@@ -188,11 +188,11 @@
           </div>
 
           <div v-else class="space-y-6">
-            <div v-for="(questions, section) in groupedQuestions" :key="section">
-              <h3 class="text-lg font-semibold text-forest-dark mb-3">{{ section }}</h3>
+            <div v-for="group in groupedQuestions" :key="group.section">
+              <h3 class="text-lg font-semibold text-forest-dark mb-3">{{ group.section }}</h3>
               <div class="space-y-2">
                 <div
-                    v-for="q in questions"
+                    v-for="q in group.questions"
                     :key="q.id"
                     class="bg-white rounded-lg shadow p-4 flex items-start justify-between"
                 >
@@ -397,7 +397,7 @@ const handleLectureSaved = async () => {
 }
 
 const groupedQuestions = computed(() => {
-  return examQuestions.value.reduce((acc, q) => {
+  const grouped = examQuestions.value.reduce((acc, q) => {
     if (acc[q.section]) {
       acc[q.section]!.push(q)
     } else {
@@ -405,6 +405,29 @@ const groupedQuestions = computed(() => {
     }
     return acc
   }, {} as Record<string, ExamQuestion[]>)
+
+  const groups = Object.entries(grouped).map(([section, questions]) => {
+    const sortedQuestions = [...questions].sort((a, b) => {
+      const numA = parseInt(String(a.number), 10)
+      const numB = parseInt(String(b.number), 10)
+      return numA - numB
+    })
+
+    const minNumber = Math.min(...sortedQuestions.map(q => parseInt(String(q.number), 10)))
+
+    return {
+      section,
+      questions: sortedQuestions,
+      minNumber
+    }
+  })
+
+  groups.sort((a, b) => {
+    return a.minNumber - b.minNumber
+  })
+
+
+  return groups
 })
 
 const addExamQuestion = () => {
