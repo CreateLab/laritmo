@@ -5,18 +5,27 @@ import (
 	"net/http"
 
 	"github.com/CreateLab/laritmo/internal/auth"
+	"github.com/CreateLab/laritmo/internal/models"
 	"github.com/CreateLab/laritmo/internal/repository"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
 
+type UserRepository interface {
+	GetByUsername(username string) (*models.User, error)
+}
+
 type AuthHandler struct {
-	userRepo   *repository.UserRepository
+	userRepo   UserRepository
 	jwtManager *auth.JWTManager
 	logger     *slog.Logger
 }
 
 func NewAuthHandler(userRepo *repository.UserRepository, jwtManager *auth.JWTManager, logger *slog.Logger) *AuthHandler {
+	return NewAuthHandlerWithRepo(userRepo, jwtManager, logger)
+}
+
+func NewAuthHandlerWithRepo(userRepo UserRepository, jwtManager *auth.JWTManager, logger *slog.Logger) *AuthHandler {
 	return &AuthHandler{
 		userRepo:   userRepo,
 		jwtManager: jwtManager,

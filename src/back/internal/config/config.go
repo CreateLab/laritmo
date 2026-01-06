@@ -33,6 +33,22 @@ type DatabaseConfig struct {
 type AuthConfig struct {
 	JWTSecret          string `mapstructure:"jwt_secret"`
 	JWTExpirationHours int    `mapstructure:"jwt_expiration_hours"`
+	RateLimitRequests  int    `mapstructure:"rate_limit_requests"`
+	RateLimitBurst     int    `mapstructure:"rate_limit_burst"`
+}
+
+func (a *AuthConfig) GetRateLimitRequests() int {
+	if a.RateLimitRequests <= 0 {
+		return 5
+	}
+	return a.RateLimitRequests
+}
+
+func (a *AuthConfig) GetRateLimitBurst() int {
+	if a.RateLimitBurst <= 0 {
+		return 5
+	}
+	return a.RateLimitBurst
 }
 
 func (d DatabaseConfig) DSN() string {

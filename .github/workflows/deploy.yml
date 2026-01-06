@@ -84,7 +84,22 @@ jobs:
             # Перезапускаем контейнеры
             docker compose -f docker-compose.prod.yml down
             docker compose -f docker-compose.prod.yml up -d
+            
+            # Ждем пока БД запустится
+            echo "Waiting for database to be ready..."
+            sleep 10
+            
+            # Проверяем доступность БД
+            docker compose -f docker-compose.prod.yml exec -T db mariadb -u laritmo -p"${{ secrets.LARITMO_DATABASE_PASSWORD }}" laritmo -e "SELECT 'Database is ready';" || echo "Database check failed, but continuing..."
+            
+            # Применяем миграции
+            echo "Applying database migrations..."
+            docker compose -f docker-compose.prod.yml exec -T app goose -dir /app/migrations mysql "laritmo:${{ secrets.LARITMO_DATABASE_PASSWORD }}@tcp(db:3306)/laritmo" up
+            
+            # Показываем статус
             docker compose -f docker-compose.prod.yml ps
+            
+            echo "Deployment complete!"
             
             # Чистим старые образы
             docker image prune -f

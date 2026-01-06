@@ -117,7 +117,9 @@ func main() {
 	api.GET("/exam-questions", examQuestionHandler.GetAll)
 	api.GET("/exam-questions/:id", examQuestionHandler.GetByID)
 
-	api.POST("/auth/login", authHandler.Login)
+	loginGroup := api.Group("/auth")
+	loginGroup.Use(middleware.RateLimitMiddleware(cfg.Auth.GetRateLimitRequests(), cfg.Auth.GetRateLimitBurst()))
+	loginGroup.POST("/login", authHandler.Login)
 
 	admin := r.Group("/api/admin")
 	admin.Use(middleware.AuthMiddleware(jwtManager))
