@@ -22,14 +22,13 @@ WORKDIR /app
 COPY src/back/go.mod src/back/go.sum ./
 RUN go mod download
 
-# Устанавливаем goose
 RUN go install github.com/pressly/goose/v3/cmd/goose@latest
 
 # Копируем весь backend код
 COPY src/back/ ./
 
-# Копируем собранный фронтенд из первого stage
-COPY --from=frontend-builder /app/back/web ./web
+# Копируем собранный фронтенд из первого stage (теперь из правильного места!)
+COPY --from=frontend-builder /app/front/dist ./web
 
 # Билдим Go приложение
 RUN CGO_ENABLED=0 GOOS=linux go build -o /laritmo ./cmd/server
@@ -44,9 +43,6 @@ RUN apk --no-cache add ca-certificates
 
 # Копируем бинарник
 COPY --from=backend-builder /laritmo /app/laritmo
-
-# ДОБАВЛЯЕМ: Копируем goose из builder stage
-COPY --from=backend-builder /go/bin/goose /usr/local/bin/goose
 
 # Копируем необходимые файлы
 COPY --from=backend-builder /app/web ./web
