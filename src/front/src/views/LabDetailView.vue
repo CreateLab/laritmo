@@ -202,11 +202,11 @@ onMounted(async () => {
 }
 
 .markdown-content :deep(pre) {
-  @apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4;
+  @apply bg-gray-50 border border-gray-200 text-gray-900 p-4 rounded-lg overflow-x-auto mb-4 shadow-sm;
 }
 
 .markdown-content :deep(pre code) {
-  @apply bg-transparent p-0;
+  @apply bg-transparent p-0 text-gray-900;
 }
 
 .markdown-content :deep(a) {
