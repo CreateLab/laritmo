@@ -31,9 +31,7 @@ func TestDocumentService_GenerateTicketsDocument(t *testing.T) {
 				text := string(output)
 				assert.Contains(t, text, "Билет № 1")
 				assert.Contains(t, text, "1. Что такое Go?")
-				assert.Contains(t, text, "(раздел: Основы)")
 				assert.Contains(t, text, "2. Что такое горутины?")
-				assert.Contains(t, text, "(раздел: Продвинутое)")
 			},
 		},
 		{
@@ -89,7 +87,6 @@ func TestDocumentService_GenerateTicketsDocument(t *testing.T) {
 				text := string(output)
 				assert.Contains(t, text, "Билет № 1")
 				assert.Contains(t, text, "1. Единственный вопрос")
-				assert.Contains(t, text, "(раздел: Основы)")
 			},
 		},
 		{
@@ -106,8 +103,6 @@ func TestDocumentService_GenerateTicketsDocument(t *testing.T) {
 			validateOutput: func(t *testing.T, output []byte) {
 				text := string(output)
 				// Проверяем, что русские символы корректно отображаются
-				assert.Contains(t, text, "Основы программирования")
-				assert.Contains(t, text, "Алгоритмы и структуры данных")
 				assert.Contains(t, text, "Что такое переменная")
 				assert.Contains(t, text, "принцип работы стека")
 
@@ -115,7 +110,6 @@ func TestDocumentService_GenerateTicketsDocument(t *testing.T) {
 				lines := strings.Split(text, "\n")
 				assert.Contains(t, lines[0], "Билет № 1")
 				assert.Contains(t, lines[2], "1. Что такое переменная")
-				assert.Contains(t, lines[3], "раздел: Основы программирования")
 			},
 		},
 		{
@@ -184,15 +178,11 @@ func TestDocumentService_FormatStructure(t *testing.T) {
 	// Билет № 1
 	//
 	// 1. Question 1
-	//    (раздел: Section A)
 	//
 	// 2. Question 2
-	//    (раздел: Section B)
 
 	assert.Contains(t, lines[0], "Билет № 1")
 	assert.True(t, lines[1] == "", "line 1 should be empty")
 	assert.Contains(t, lines[2], "1. Question 1")
-	assert.Contains(t, lines[3], "(раздел: Section A)")
-	assert.Contains(t, lines[5], "2. Question 2")
-	assert.Contains(t, lines[6], "(раздел: Section B)")
+	assert.Contains(t, lines[3], "2. Question 2")
 }

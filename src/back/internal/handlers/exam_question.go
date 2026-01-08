@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/csv"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"path/filepath"
@@ -325,7 +326,7 @@ func (h *ExamQuestionHandler) BulkUploadFile(c *gin.Context) {
 		var jsonData map[string]interface{}
 		if err := json.NewDecoder(file).Decode(&jsonData); err != nil {
 			h.logger.ErrorContext(c.Request.Context(), "Parsing error JSON", "error", err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid JSON format: %v", err)})
 			return
 		}
 
@@ -379,7 +380,7 @@ func (h *ExamQuestionHandler) BulkUploadFile(c *gin.Context) {
 		records, err := reader.ReadAll()
 		if err != nil {
 			h.logger.ErrorContext(c.Request.Context(), "Reading error CSV", "error", err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read CSV file"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Failed to read CSV file: %v", err)})
 			return
 		}
 
@@ -391,14 +392,14 @@ func (h *ExamQuestionHandler) BulkUploadFile(c *gin.Context) {
 		for i, record := range records[1:] {
 			if len(record) < 3 {
 				h.logger.ErrorContext(c.Request.Context(), "Invalid number of columns in CSV", "row", i+2, "columns", len(record))
-				c.JSON(http.StatusBadRequest, gin.H{"error": "CSV must contain columns: number,section,question"})
+				c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("CSV must contain columns: number,section,question. Row %d has %d columns", i+2, len(record))})
 				return
 			}
 
 			number, err := strconv.Atoi(record[0])
 			if err != nil {
 				h.logger.ErrorContext(c.Request.Context(), "Failed to parse number in CSV", "row", i+2, "error", err)
-				c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid number format in row " + strconv.Itoa(i+2)})
+				c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid number format in row %d: %v", i+2, err)})
 				return
 			}
 
@@ -423,7 +424,7 @@ func (h *ExamQuestionHandler) BulkUploadFile(c *gin.Context) {
 	err = h.repo.BulkCreate(questions)
 	if err != nil {
 		h.logger.ErrorContext(c.Request.Context(), "Bulk creation error exam questions", "error", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Bulk creation error exam questions"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to create questions: %v", err)})
 		return
 	}
 

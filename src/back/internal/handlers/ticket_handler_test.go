@@ -315,13 +315,13 @@ func TestTicketHandler_GenerateTicketsDocument(t *testing.T) {
 				{Number: 1, Questions: []models.Question{{Number: 1, Section: "A", Question: "Q1"}}},
 				{Number: 2, Questions: []models.Question{{Number: 2, Section: "B", Question: "Q2"}}},
 			},
-			mockDocument:   []byte("Билет № 1\n\n1. Q1\n   (раздел: A)\n\n"),
+			mockDocument:   []byte("Билет № 1\n\n1. Q1\n\n"),
 			expectedStatus: http.StatusOK,
 			validateResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
 				assert.Equal(t, "text/plain; charset=utf-8", w.Header().Get("Content-Type"))
 				assert.Contains(t, w.Header().Get("Content-Disposition"), "attachment")
 				assert.Contains(t, w.Header().Get("Content-Disposition"), "tickets_test_course.txt")
-				assert.Equal(t, "Билет № 1\n\n1. Q1\n   (раздел: A)\n\n", w.Body.String())
+				assert.Equal(t, "Билет № 1\n\n1. Q1\n\n", w.Body.String())
 			},
 		},
 		{
