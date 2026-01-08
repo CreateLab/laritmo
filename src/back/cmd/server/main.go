@@ -17,6 +17,7 @@ import (
 	"github.com/CreateLab/laritmo/internal/handlers"
 	"github.com/CreateLab/laritmo/internal/middleware"
 	"github.com/CreateLab/laritmo/internal/repository"
+	"github.com/CreateLab/laritmo/internal/services"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -83,6 +84,11 @@ func main() {
 	labHandler := handlers.NewLabHandler(labRepo, logger)
 	gradeSheetHandler := handlers.NewGradeSheetHandler(gradeSheetRepo, logger)
 	examQuestionHandler := handlers.NewExamQuestionHandler(examQuestionRepo, logger)
+
+	ticketService := services.NewTicketService(examQuestionRepo) // examQuestionRepo реализует ExamQuestionRepositoryInterface
+	documentService := services.NewDocumentService()
+	ticketHandler := handlers.NewTicketHandler(ticketService, documentService, courseRepo, logger)
+
 	authHandler := handlers.NewAuthHandler(userRepo, jwtManager, logger)
 
 	gin.SetMode(cfg.Server.Mode)
@@ -117,6 +123,8 @@ func main() {
 	api.GET("/exam-questions", examQuestionHandler.GetAll)
 	api.GET("/exam-questions/:id", examQuestionHandler.GetByID)
 
+	api.GET("/courses/:id/tickets/random", ticketHandler.GetRandomTicket)
+
 	loginGroup := api.Group("/auth")
 	loginGroup.Use(middleware.RateLimitMiddleware(cfg.Auth.GetRateLimitRequests(), cfg.Auth.GetRateLimitBurst()))
 	loginGroup.POST("/login", authHandler.Login)
@@ -146,6 +154,8 @@ func main() {
 		admin.POST("/exam-questions/upload", examQuestionHandler.BulkUploadFile)
 		admin.PUT("/exam-questions/:id", examQuestionHandler.Update)
 		admin.DELETE("/exam-questions/:id", examQuestionHandler.Delete)
+
+		admin.POST("/courses/:id/tickets/generate", ticketHandler.GenerateTicketsDocument)
 	}
 
 	r.Static("/assets", "./web/assets")

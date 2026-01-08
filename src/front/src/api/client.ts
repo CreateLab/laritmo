@@ -11,6 +11,11 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
     (config) => {
+        // Добавляем JWT токен из localStorage, если он есть
+        const token = localStorage.getItem('token')
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`
+        }
         console.log('API Request:', config.method?.toUpperCase(), config.url)
         return config
     },

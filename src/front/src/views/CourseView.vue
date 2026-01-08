@@ -164,18 +164,26 @@
         </TabPanel>
 
         <TabPanel header="📝 Вопросы к экзамену" value="exam">
-          <div v-if="authStore.isAdmin" class="flex gap-4 mb-4">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+            <div v-if="authStore.isAdmin" class="flex gap-4">
+              <button
+                  @click="addExamQuestion"
+                  class="px-4 py-2 bg-forest-green text-white rounded-lg hover:bg-forest-dark transition-colors"
+              >
+                ➕ Добавить вопрос
+              </button>
+              <button
+                  @click="showBulkUpload = true"
+                  class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                📤 Массовая загрузка
+              </button>
+            </div>
             <button
-                @click="addExamQuestion"
-                class="px-4 py-2 bg-forest-green text-white rounded-lg hover:bg-forest-dark transition-colors"
+                @click="showTicketGenerator = true"
+                class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors whitespace-nowrap"
             >
-              ➕ Добавить вопрос
-            </button>
-            <button
-                @click="showBulkUpload = true"
-                class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              📤 Массовая загрузка
+              🎫 Сгенерировать билет
             </button>
           </div>
 
@@ -262,6 +270,14 @@
         :course-id="courseId"
         @saved="handleGradeSheetSaved"
     />
+
+    <TicketGeneratorDialog
+        v-if="course"
+        v-model:visible="showTicketGenerator"
+        :course-id="courseId"
+        :course-name="course.name"
+        :is-authenticated="authStore.isAuthenticated"
+    />
   </div>
 </template>
 
@@ -282,6 +298,7 @@ import LabEditDialog from '@/components/LabEditDialog.vue'
 import GradeSheetEditDialog from '@/components/GradeSheetEditDialog.vue'
 import ExamQuestionEditDialog from '@/components/ExamQuestionEditDialog.vue'
 import ExamQuestionBulkUpload from '@/components/ExamQuestionBulkUpload.vue'
+import TicketGeneratorDialog from '@/components/TicketGeneratorDialog.vue'
 
 
 const route = useRoute()
@@ -315,6 +332,7 @@ const editingGradeSheet = ref<GradeSheet | null>(null)
 
 const showExamQuestionDialog = ref(false)
 const showBulkUpload = ref(false)
+const showTicketGenerator = ref(false)
 const editingExamQuestion = ref<ExamQuestion | null>(null)
 
 const editCourse = () => {

@@ -8,6 +8,7 @@ import router from './router'
 
 import PrimeVue from 'primevue/config'
 import Aura from '@primevue/themes/aura'
+import ToastService from 'primevue/toastservice'
 import 'primeicons/primeicons.css'
 
 import { useAuthStore } from './stores/auth'
@@ -25,6 +26,7 @@ app.use(PrimeVue, {
         }
     }
 })
+app.use(ToastService)
 
 const authStore = useAuthStore()
 authStore.initAuth()
