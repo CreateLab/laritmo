@@ -10,25 +10,25 @@
   >
     <div v-if="loading" class="flex flex-col items-center justify-center py-8">
       <ProgressSpinner />
-      <p class="mt-4 text-gray-600">Генерация билетов...</p>
+      <p class="mt-4 text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Генерация билетов...</p>
     </div>
 
     <div v-else-if="generatedTicket && !isAuthenticated" class="space-y-4">
       <!-- Отображение билета для неавторизованных -->
-      <div class="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 class="text-xl font-bold text-forest-dark mb-4">
+      <div class="bg-white dark:bg-dark-surface rounded-lg border border-gray-200 dark:border-dark-border p-6 transition-colors duration-300">
+        <h3 class="text-xl font-bold text-forest-dark dark:text-dark-text mb-4 transition-colors duration-300">
           Билет № {{ generatedTicket.number }}
         </h3>
         <div class="space-y-4">
           <div
             v-for="(question, index) in generatedTicket.questions"
             :key="index"
-            class="border-l-4 border-forest-green pl-4 py-2"
+            class="border-l-4 border-forest-green dark:border-forest-green-dark pl-4 py-2 transition-colors duration-300"
           >
-            <p class="text-gray-800 font-medium mb-1">
+            <p class="text-gray-800 dark:text-dark-text font-medium mb-1 transition-colors duration-300">
               {{ index + 1 }}. {{ question.question }}
             </p>
-            <p class="text-sm text-gray-600">(раздел: {{ question.section }})</p>
+            <p class="text-sm text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">(раздел: {{ question.section }})</p>
           </div>
         </div>
       </div>
@@ -44,7 +44,7 @@
     <form v-else @submit.prevent="handleSubmit" class="space-y-6">
       <!-- Поле для количества вопросов -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
+        <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-2 transition-colors duration-300">
           Количество вопросов в билете
         </label>
         <InputNumber
@@ -55,14 +55,14 @@
           class="w-full"
           required
         />
-        <p class="mt-1 text-xs text-gray-500">
+        <p class="mt-1 text-xs text-gray-500 dark:text-dark-text-secondary transition-colors duration-300">
           От 1 до 50 вопросов
         </p>
       </div>
 
       <!-- Поле для количества билетов (только для авторизованных) -->
       <div v-if="isAuthenticated">
-        <label class="block text-sm font-medium text-gray-700 mb-2">
+        <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-2 transition-colors duration-300">
           Количество билетов
         </label>
         <InputNumber
@@ -73,13 +73,13 @@
           class="w-full"
           required
         />
-        <p class="mt-1 text-xs text-gray-500">
+        <p class="mt-1 text-xs text-gray-500 dark:text-dark-text-secondary transition-colors duration-300">
           От 1 до 100 билетов
         </p>
       </div>
 
-      <div v-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p class="text-red-800 text-sm">{{ error }}</p>
+      <div v-if="error" class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4 transition-colors duration-300">
+        <p class="text-red-800 dark:text-red-300 text-sm transition-colors duration-300">{{ error }}</p>
       </div>
 
       <div class="flex justify-end gap-3 pt-4">

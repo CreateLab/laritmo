@@ -3,34 +3,34 @@
     <header class="mb-8">
       <button
           @click="goBack()"
-          class="text-forest-green hover:text-forest-dark mb-4 flex items-center gap-2"
+          class="text-forest-green dark:text-forest-green-dark hover:text-forest-dark dark:hover:text-forest-green mb-4 flex items-center gap-2 transition-colors duration-300"
       >
         ← Назад к курсу
       </button>
 
       <div v-if="loading" class="animate-pulse">
-        <div class="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
-        <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+        <div class="h-8 bg-gray-200 dark:bg-dark-surface rounded w-3/4 mb-4"></div>
+        <div class="h-4 bg-gray-200 dark:bg-dark-surface rounded w-1/4"></div>
       </div>
 
       <div v-else-if="lab">
         <div class="flex items-center gap-2 mb-2">
-          <span class="px-3 py-1 bg-forest-green text-white rounded-full text-sm">
+          <span class="px-3 py-1 bg-forest-green dark:bg-forest-green-dark text-white rounded-full text-sm transition-colors duration-300">
             Лаба #{{ lab.number }}
           </span>
-          <span class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">
+          <span class="px-3 py-1 bg-gray-200 dark:bg-dark-surface text-gray-700 dark:text-dark-text-secondary rounded-full text-sm transition-colors duration-300">
             Макс. {{ lab.max_score }} баллов
           </span>
-          <span v-if="lab.deadline" class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm">
+          <span v-if="lab.deadline" class="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full text-sm transition-colors duration-300">
             Дедлайн: {{ formatDate(lab.deadline) }}
           </span>
         </div>
-        <h1 class="text-3xl font-bold text-forest-dark mb-2">{{ lab.title }}</h1>
+        <h1 class="text-3xl font-bold text-forest-dark dark:text-dark-text mb-2 transition-colors duration-300">{{ lab.title }}</h1>
         <a
             v-if="lab.github_url"
             :href="lab.github_url"
             target="_blank"
-            class="text-sm text-forest-green hover:underline flex items-center gap-1"
+            class="text-sm text-forest-green dark:text-forest-green-dark hover:underline flex items-center gap-1 transition-colors duration-300"
         >
           <i class="pi pi-github"></i>
           Открыть на GitHub
@@ -40,13 +40,13 @@
       <div v-if="authStore.isAdmin" class="flex gap-4 mt-4">
         <button
             @click="editLab"
-            class="px-4 py-2 bg-forest-green text-white rounded-lg hover:bg-forest-dark transition-colors"
+            class="px-4 py-2 bg-forest-green dark:bg-forest-green-dark text-white rounded-lg hover:bg-forest-dark dark:hover:bg-forest-green transition-colors duration-300"
         >
           ✏️ Редактировать
         </button>
         <button
             @click="deleteLab"
-            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            class="px-4 py-2 bg-red-500 dark:bg-red-600 text-white rounded-lg hover:bg-red-600 dark:hover:bg-red-700 transition-colors duration-300"
         >
           🗑️ Удалить
         </button>
@@ -55,16 +55,16 @@
 
     <main>
       <div v-if="loading" class="text-center py-12">
-        <p class="text-gray-600">Загрузка лабораторной...</p>
+        <p class="text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Загрузка лабораторной...</p>
       </div>
 
       <div v-else-if="!lab" class="text-center py-12">
-        <p class="text-red-600">Лабораторная работа не найдена</p>
+        <p class="text-red-600 dark:text-red-400 transition-colors duration-300">Лабораторная работа не найдена</p>
       </div>
 
       <div
           v-else
-          class="bg-white rounded-xl shadow-md p-8 prose prose-slate max-w-none markdown-content"
+          class="bg-white dark:bg-dark-surface rounded-xl shadow-md dark:shadow-lg p-8 prose prose-slate max-w-none markdown-content transition-colors duration-300"
           v-html="renderedContent"
       ></div>
     </main>
@@ -173,19 +173,19 @@ onMounted(async () => {
 }
 
 .markdown-content :deep(h1) {
-  @apply text-3xl font-bold text-forest-dark mt-8 mb-4;
+  @apply text-3xl font-bold text-forest-dark dark:text-dark-text mt-8 mb-4;
 }
 
 .markdown-content :deep(h2) {
-  @apply text-2xl font-semibold text-forest-dark mt-6 mb-3;
+  @apply text-2xl font-semibold text-forest-dark dark:text-dark-text mt-6 mb-3;
 }
 
 .markdown-content :deep(h3) {
-  @apply text-xl font-semibold text-forest-dark mt-4 mb-2;
+  @apply text-xl font-semibold text-forest-dark dark:text-dark-text mt-4 mb-2;
 }
 
 .markdown-content :deep(p) {
-  @apply mb-4 text-gray-700;
+  @apply mb-4 text-gray-700 dark:text-dark-text-secondary;
 }
 
 .markdown-content :deep(ul),
@@ -198,23 +198,23 @@ onMounted(async () => {
 }
 
 .markdown-content :deep(code) {
-  @apply bg-gray-100 px-2 py-1 rounded text-sm font-mono;
+  @apply bg-gray-100 dark:bg-dark-bg px-2 py-1 rounded text-sm font-mono;
 }
 
 .markdown-content :deep(pre) {
-  @apply bg-gray-50 border border-gray-200 text-gray-900 p-4 rounded-lg overflow-x-auto mb-4 shadow-sm;
+  @apply bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-dark-text p-4 rounded-lg overflow-x-auto mb-4 shadow-sm;
 }
 
 .markdown-content :deep(pre code) {
-  @apply bg-transparent p-0 text-gray-900;
+  @apply bg-transparent p-0 text-gray-900 dark:text-dark-text;
 }
 
 .markdown-content :deep(a) {
-  @apply text-forest-green hover:underline;
+  @apply text-forest-green dark:text-forest-green-dark hover:underline;
 }
 
 .markdown-content :deep(blockquote) {
-  @apply border-l-4 border-forest-green pl-4 italic my-4 text-gray-600;
+  @apply border-l-4 border-forest-green dark:border-forest-green-dark pl-4 italic my-4 text-gray-600 dark:text-dark-text-secondary;
 }
 
 .markdown-content :deep(table) {
@@ -222,10 +222,10 @@ onMounted(async () => {
 }
 
 .markdown-content :deep(th) {
-  @apply bg-forest-green text-white p-2 text-left;
+  @apply bg-forest-green dark:bg-forest-green-dark text-white p-2 text-left;
 }
 
 .markdown-content :deep(td) {
-  @apply border border-gray-300 p-2;
+  @apply border border-gray-300 dark:border-dark-border p-2;
 }
 </style>

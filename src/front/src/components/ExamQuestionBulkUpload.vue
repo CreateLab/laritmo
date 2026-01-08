@@ -9,39 +9,39 @@
     <TabView>
       <TabPanel header="📤 Загрузить файл" value="upload">
         <div class="space-y-4">
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 class="font-semibold text-blue-900 mb-2">Поддерживаемые форматы:</h4>
-            <ul class="text-sm text-blue-800 space-y-1 list-disc list-inside">
+          <div class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 transition-colors duration-300">
+            <h4 class="font-semibold text-blue-900 dark:text-blue-200 mb-2 transition-colors duration-300">Поддерживаемые форматы:</h4>
+            <ul class="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside transition-colors duration-300">
               <li><strong>JSON</strong> (.json) - структурированный формат</li>
               <li><strong>CSV</strong> (.csv) - табличный формат</li>
             </ul>
           </div>
 
-          <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <h4 class="font-semibold text-gray-900 mb-2">Пример JSON:</h4>
-            <pre class="text-xs bg-white p-3 rounded border overflow-x-auto">{{ jsonExample }}</pre>
+          <div class="bg-gray-50 dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-lg p-4 transition-colors duration-300">
+            <h4 class="font-semibold text-gray-900 dark:text-dark-text mb-2 transition-colors duration-300">Пример JSON:</h4>
+            <pre class="text-xs bg-white dark:bg-dark-bg p-3 rounded border dark:border-dark-border overflow-x-auto text-gray-900 dark:text-dark-text transition-colors duration-300">{{ jsonExample }}</pre>
           </div>
 
-          <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <h4 class="font-semibold text-gray-900 mb-2">Пример CSV:</h4>
-            <pre class="text-xs bg-white p-3 rounded border overflow-x-auto">{{ csvExample }}</pre>
+          <div class="bg-gray-50 dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-lg p-4 transition-colors duration-300">
+            <h4 class="font-semibold text-gray-900 dark:text-dark-text mb-2 transition-colors duration-300">Пример CSV:</h4>
+            <pre class="text-xs bg-white dark:bg-dark-bg p-3 rounded border dark:border-dark-border overflow-x-auto text-gray-900 dark:text-dark-text transition-colors duration-300">{{ csvExample }}</pre>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Выберите файл</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-2 transition-colors duration-300">Выберите файл</label>
             <input
                 ref="fileInput"
                 type="file"
                 accept=".json,.csv"
                 @change="handleFileSelect"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green dark:focus:ring-forest-green-dark bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text transition-colors duration-300"
             />
-            <p v-if="selectedFile" class="mt-2 text-sm text-gray-600">
+            <p v-if="selectedFile" class="mt-2 text-sm text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">
               Выбран: {{ selectedFile.name }}
             </p>
           </div>
 
-          <div v-if="error" class="text-red-600 text-sm">
+          <div v-if="error" class="text-red-600 dark:text-red-400 text-sm transition-colors duration-300">
             {{ error }}
           </div>
 
@@ -49,7 +49,7 @@
             <button
                 type="button"
                 @click="visible = false"
-                class="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg"
+                class="px-4 py-2 text-sm bg-gray-100 dark:bg-dark-surface hover:bg-gray-200 dark:hover:bg-dark-border rounded-lg transition-colors duration-300 text-gray-700 dark:text-dark-text"
             >
               Отмена
             </button>
@@ -57,7 +57,7 @@
                 type="button"
                 @click="handleUploadFile"
                 :disabled="loading || !selectedFile"
-                class="px-4 py-2 text-sm bg-forest-green text-white hover:bg-forest-dark rounded-lg disabled:opacity-50"
+                class="px-4 py-2 text-sm bg-forest-green dark:bg-forest-green-dark text-white hover:bg-forest-dark dark:hover:bg-forest-green rounded-lg disabled:opacity-50 transition-colors duration-300"
             >
               {{ loading ? 'Загрузка...' : 'Загрузить' }}
             </button>
@@ -67,22 +67,22 @@
 
       <TabPanel header="📋 Вставить JSON" value="json">
         <div class="space-y-4">
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 class="font-semibold text-blue-900 mb-2">Формат JSON:</h4>
-            <pre class="text-xs bg-white p-3 rounded border overflow-x-auto">{{ jsonExample }}</pre>
+          <div class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 transition-colors duration-300">
+            <h4 class="font-semibold text-blue-900 dark:text-blue-200 mb-2 transition-colors duration-300">Формат JSON:</h4>
+            <pre class="text-xs bg-white dark:bg-dark-bg p-3 rounded border dark:border-dark-border overflow-x-auto text-gray-900 dark:text-dark-text transition-colors duration-300">{{ jsonExample }}</pre>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Вставьте JSON</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-2 transition-colors duration-300">Вставьте JSON</label>
             <textarea
                 v-model="jsonInput"
                 rows="12"
                 placeholder='{"questions": [{"number": 1, "section": "Основы", "question": "Вопрос 1"}]}'
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green font-mono text-sm"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green dark:focus:ring-forest-green-dark font-mono text-sm bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text transition-colors duration-300"
             ></textarea>
           </div>
 
-          <div v-if="error" class="text-red-600 text-sm">
+          <div v-if="error" class="text-red-600 dark:text-red-400 text-sm transition-colors duration-300">
             {{ error }}
           </div>
 
@@ -90,7 +90,7 @@
             <button
                 type="button"
                 @click="visible = false"
-                class="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg"
+                class="px-4 py-2 text-sm bg-gray-100 dark:bg-dark-surface hover:bg-gray-200 dark:hover:bg-dark-border rounded-lg transition-colors duration-300 text-gray-700 dark:text-dark-text"
             >
               Отмена
             </button>
@@ -98,7 +98,7 @@
                 type="button"
                 @click="handleImportJSON"
                 :disabled="loading || !jsonInput.trim()"
-                class="px-4 py-2 text-sm bg-forest-green text-white hover:bg-forest-dark rounded-lg disabled:opacity-50"
+                class="px-4 py-2 text-sm bg-forest-green dark:bg-forest-green-dark text-white hover:bg-forest-dark dark:hover:bg-forest-green rounded-lg disabled:opacity-50 transition-colors duration-300"
             >
               {{ loading ? 'Импорт...' : 'Импортировать' }}
             </button>

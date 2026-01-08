@@ -9,59 +9,59 @@
     <form @submit.prevent="handleSubmit" class="space-y-4">
       <div class="grid grid-cols-3 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Номер</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1 transition-colors duration-300">Номер</label>
           <input
               v-model.number="form.number"
               type="number"
               required
               min="1"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green dark:focus:ring-forest-green-dark bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text transition-colors duration-300"
           />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Максимальный балл</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1 transition-colors duration-300">Максимальный балл</label>
           <input
               v-model.number="form.max_score"
               type="number"
               required
               min="1"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green dark:focus:ring-forest-green-dark bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text transition-colors duration-300"
           />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Дедлайн (опционально)</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1 transition-colors duration-300">Дедлайн (опционально)</label>
           <input
               v-model="form.deadline"
               type="date"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green dark:focus:ring-forest-green-dark bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text transition-colors duration-300"
           />
         </div>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Название лабораторной</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1 transition-colors duration-300">Название лабораторной</label>
         <input
             v-model="form.title"
             type="text"
             required
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green dark:focus:ring-forest-green-dark bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text transition-colors duration-300"
         />
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">GitHub URL (опционально)</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1 transition-colors duration-300">GitHub URL (опционально)</label>
         <input
             v-model="form.github_url"
             type="url"
             placeholder="https://github.com/..."
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green dark:focus:ring-forest-green-dark bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text transition-colors duration-300"
         />
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Описание (Markdown)</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1 transition-colors duration-300">Описание (Markdown)</label>
         <textarea
             ref="descriptionTextarea"
             v-model="form.description"
@@ -69,7 +69,7 @@
         ></textarea>
       </div>
 
-      <div v-if="error" class="text-red-600 text-sm">
+      <div v-if="error" class="text-red-600 dark:text-red-400 text-sm transition-colors duration-300">
         {{ error }}
       </div>
 
@@ -77,14 +77,14 @@
         <button
             type="button"
             @click="visible = false"
-            class="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg"
+            class="px-4 py-2 text-sm bg-gray-100 dark:bg-dark-surface hover:bg-gray-200 dark:hover:bg-dark-border rounded-lg transition-colors duration-300 text-gray-700 dark:text-dark-text"
         >
           Отмена
         </button>
         <button
             type="submit"
             :disabled="loading"
-            class="px-4 py-2 text-sm bg-forest-green text-white hover:bg-forest-dark rounded-lg disabled:opacity-50"
+            class="px-4 py-2 text-sm bg-forest-green dark:bg-forest-green-dark text-white hover:bg-forest-dark dark:hover:bg-forest-green rounded-lg disabled:opacity-50 transition-colors duration-300"
         >
           {{ loading ? 'Сохранение...' : 'Сохранить' }}
         </button>
@@ -233,9 +233,28 @@ const onHide = () => {
   border-radius: 0.5rem;
 }
 
+.dark .CodeMirror {
+  border-color: #404040;
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
 .editor-toolbar {
   border: 1px solid #d1d5db;
   border-bottom: none;
   border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.dark .editor-toolbar {
+  border-color: #404040;
+  background-color: #2d2d2d;
+}
+
+.dark .editor-toolbar button {
+  color: #e0e0e0;
+}
+
+.dark .editor-toolbar button:hover {
+  background-color: #404040;
 }
 </style>

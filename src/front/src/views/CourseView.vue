@@ -3,33 +3,33 @@
     <header class="mb-8">
       <button
           @click="router.push('/')"
-          class="text-forest-green hover:text-forest-dark mb-4 flex items-center gap-2"
+          class="text-forest-green dark:text-forest-green-dark hover:text-forest-dark dark:hover:text-forest-green mb-4 flex items-center gap-2 transition-colors duration-300"
       >
         ← На главную
       </button>
 
       <div v-if="loading" class="animate-pulse">
-        <div class="h-8 bg-gray-200 rounded w-3/4 mb-2"></div>
-        <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+        <div class="h-8 bg-gray-200 dark:bg-dark-surface rounded w-3/4 mb-2"></div>
+        <div class="h-4 bg-gray-200 dark:bg-dark-surface rounded w-1/4"></div>
       </div>
 
       <div v-else-if="course" class="flex items-start justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-forest-dark mb-2">{{ course.name }}</h1>
-          <p class="text-gray-600">{{ course.semester }}</p>
-          <p class="text-gray-700 mt-2">{{ course.description }}</p>
+          <h1 class="text-3xl font-bold text-forest-dark dark:text-dark-text mb-2 transition-colors duration-300">{{ course.name }}</h1>
+          <p class="text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">{{ course.semester }}</p>
+          <p class="text-gray-700 dark:text-dark-text-secondary mt-2 transition-colors duration-300">{{ course.description }}</p>
         </div>
 
         <div v-if="authStore.isAdmin">
           <button
               @click="editCourse"
-              class="px-4 py-2 bg-forest-green text-white rounded-lg hover:bg-forest-dark transition-colors"
+              class="px-4 py-2 bg-forest-green dark:bg-forest-green-dark text-white rounded-lg hover:bg-forest-dark dark:hover:bg-forest-green transition-colors duration-300"
           >
             ✏️ Редактировать
           </button>
           <button
               @click="deleteCourse"
-              class="flex gap-6 mb-8 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+              class="flex gap-6 mb-8 px-4 py-2 bg-red-500 dark:bg-red-600 text-white rounded-lg hover:bg-red-600 dark:hover:bg-red-700 transition-colors duration-300"
           >
             🗑️ Удалить
           </button>
@@ -44,18 +44,18 @@
           <div v-if="authStore.isAdmin" class="mb-4">
             <button
                 @click="addLecture"
-                class="px-4 py-2 bg-forest-green text-white rounded-lg hover:bg-forest-dark transition-colors"
+                class="px-4 py-2 bg-forest-green dark:bg-forest-green-dark text-white rounded-lg hover:bg-forest-dark dark:hover:bg-forest-green transition-colors duration-300"
             >
               ➕ Добавить лекцию
             </button>
           </div>
 
           <div v-if="lecturesLoading" class="text-center py-8">
-            <p class="text-gray-600">Загрузка лекций...</p>
+            <p class="text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Загрузка лекций...</p>
           </div>
 
           <div v-else-if="lectures.length === 0" class="text-center py-8">
-            <p class="text-gray-600">Лекции пока не добавлены</p>
+            <p class="text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Лекции пока не добавлены</p>
           </div>
 
           <div v-else class="space-y-3">
@@ -63,17 +63,17 @@
                 v-for="lecture in lectures"
                 :key="lecture.id"
                 @click="goToLecture(lecture.id)"
-                class="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow cursor-pointer border-2 border-transparent hover:border-forest-mint"
+                class="bg-white dark:bg-dark-surface rounded-lg shadow dark:shadow-lg p-4 hover:shadow-md dark:hover:shadow-xl transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-forest-mint dark:hover:border-forest-mint-dark"
             >
               <div class="flex items-start gap-3">
                 <div class="text-2xl">🍂</div>
                 <div class="flex-1">
                   <div class="flex items-center gap-2 mb-1">
-                    <span class="px-2 py-1 bg-forest-green text-white rounded-full text-xs">
+                    <span class="px-2 py-1 bg-forest-green dark:bg-forest-green-dark text-white rounded-full text-xs">
                       Неделя {{ lecture.week }}
                     </span>
                   </div>
-                  <h3 class="font-semibold text-forest-dark">{{ lecture.title }}</h3>
+                  <h3 class="font-semibold text-forest-dark dark:text-dark-text transition-colors duration-300">{{ lecture.title }}</h3>
                 </div>
               </div>
             </div>
@@ -84,18 +84,18 @@
           <div v-if="authStore.isAdmin" class="mb-4">
             <button
                 @click="addLab"
-                class="px-4 py-2 bg-forest-green text-white rounded-lg hover:bg-forest-dark transition-colors"
+                class="px-4 py-2 bg-forest-green dark:bg-forest-green-dark text-white rounded-lg hover:bg-forest-dark dark:hover:bg-forest-green transition-colors duration-300"
             >
               ➕ Добавить лабораторную
             </button>
           </div>
 
           <div v-if="labsLoading" class="text-center py-8">
-            <p class="text-gray-600">Загрузка лаб...</p>
+            <p class="text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Загрузка лаб...</p>
           </div>
 
           <div v-else-if="labs.length === 0" class="text-center py-8">
-            <p class="text-gray-600">Лабораторные пока не добавлены</p>
+            <p class="text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Лабораторные пока не добавлены</p>
           </div>
 
           <div v-else class="space-y-3">
@@ -103,19 +103,19 @@
                 v-for="lab in labs"
                 :key="lab.id"
                 @click="goToLab(lab.id)"
-                class="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow border-2 border-transparent hover:border-forest-mint"
+                class="bg-white dark:bg-dark-surface rounded-lg shadow dark:shadow-lg p-4 hover:shadow-md dark:hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-forest-mint dark:hover:border-forest-mint-dark cursor-pointer"
             >
               <div class="flex items-start gap-3">
                 <div class="text-2xl">🧪</div>
                 <div class="flex-1">
                   <div class="flex items-center gap-2 mb-1">
-                    <span class="px-2 py-1 bg-forest-green text-white rounded-full text-xs">
+                    <span class="px-2 py-1 bg-forest-green dark:bg-forest-green-dark text-white rounded-full text-xs">
                       Лаба #{{ lab.number }}
                     </span>
-                    <span class="text-xs text-gray-600">Макс: {{ lab.max_score }} баллов</span>
+                    <span class="text-xs text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Макс: {{ lab.max_score }} баллов</span>
                   </div>
-                  <h3 class="font-semibold text-forest-dark mb-2">{{ lab.title }}</h3>
-                  <p class="text-sm text-gray-600 line-clamp-2">
+                  <h3 class="font-semibold text-forest-dark dark:text-dark-text mb-2 transition-colors duration-300">{{ lab.title }}</h3>
+                  <p class="text-sm text-gray-600 dark:text-dark-text-secondary line-clamp-2 transition-colors duration-300">
                     {{ lab.description.substring(0, 150) }}...
                   </p>
                 </div>
@@ -128,18 +128,18 @@
           <div v-if="authStore.isAdmin" class="mb-4">
             <button
                 @click="addOrEditGradeSheet"
-                class="px-4 py-2 bg-forest-green text-white rounded-lg hover:bg-forest-dark transition-colors"
+                class="px-4 py-2 bg-forest-green dark:bg-forest-green-dark text-white rounded-lg hover:bg-forest-dark dark:hover:bg-forest-green transition-colors duration-300"
             >
               {{ gradeSheets.length > 0 ? '✏️ Изменить ссылку на журнал' : '➕ Добавить ссылку на журнал' }}
             </button>
           </div>
 
           <div v-if="gradeSheetsLoading" class="text-center py-8">
-            <p class="text-gray-600">Загрузка...</p>
+            <p class="text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Загрузка...</p>
           </div>
 
           <div v-else-if="!gradeSheets || gradeSheets.length === 0" class="text-center py-8">
-            <p class="text-gray-600">Журнал пока не добавлен</p>
+            <p class="text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Журнал пока не добавлен</p>
           </div>
 
           <div v-else class="space-y-3">
@@ -148,15 +148,15 @@
                 :key="sheet.id"
                 :href="sheet.sheet_url"
                 target="_blank"
-                class="block bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow border-2 border-transparent hover:border-forest-mint"
+                class="block bg-white dark:bg-dark-surface rounded-lg shadow dark:shadow-lg p-4 hover:shadow-md dark:hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-forest-mint dark:hover:border-forest-mint-dark"
             >
               <div class="flex items-center gap-3">
                 <div class="text-2xl">📊</div>
                 <div class="flex-1">
-                  <h3 class="font-semibold text-forest-dark">
+                  <h3 class="font-semibold text-forest-dark dark:text-dark-text transition-colors duration-300">
                     {{ sheet.description || 'Google Sheets журнал' }}
                   </h3>
-                  <p class="text-sm text-forest-green">Открыть журнал →</p>
+                  <p class="text-sm text-forest-green dark:text-forest-green-dark transition-colors duration-300">Открыть журнал →</p>
                 </div>
               </div>
             </a>
@@ -168,57 +168,57 @@
             <div v-if="authStore.isAdmin" class="flex gap-4">
               <button
                   @click="addExamQuestion"
-                  class="px-4 py-2 bg-forest-green text-white rounded-lg hover:bg-forest-dark transition-colors"
+                  class="px-4 py-2 bg-forest-green dark:bg-forest-green-dark text-white rounded-lg hover:bg-forest-dark dark:hover:bg-forest-green transition-colors duration-300"
               >
                 ➕ Добавить вопрос
               </button>
               <button
                   @click="showBulkUpload = true"
-                  class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  class="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-lg hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors duration-300"
               >
                 📤 Массовая загрузка
               </button>
             </div>
             <button
                 @click="showTicketGenerator = true"
-                class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors whitespace-nowrap"
+                class="px-4 py-2 bg-purple-500 dark:bg-purple-600 text-white rounded-lg hover:bg-purple-600 dark:hover:bg-purple-700 transition-colors duration-300 whitespace-nowrap"
             >
               🎫 Сгенерировать билет
             </button>
           </div>
 
           <div v-if="examQuestionsLoading" class="text-center py-8">
-            <p class="text-gray-600">Загрузка вопросов...</p>
+            <p class="text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Загрузка вопросов...</p>
           </div>
 
           <div v-else-if="examQuestions.length === 0" class="text-center py-8">
-            <p class="text-gray-600">Вопросы пока не добавлены</p>
+            <p class="text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Вопросы пока не добавлены</p>
           </div>
 
           <div v-else class="space-y-6">
             <div v-for="group in groupedQuestions" :key="group.section">
-              <h3 class="text-lg font-semibold text-forest-dark mb-3">{{ group.section }}</h3>
+              <h3 class="text-lg font-semibold text-forest-dark dark:text-dark-text mb-3 transition-colors duration-300">{{ group.section }}</h3>
               <div class="space-y-2">
                 <div
                     v-for="q in group.questions"
                     :key="q.id"
-                    class="bg-white rounded-lg shadow p-4 flex items-start justify-between"
+                    class="bg-white dark:bg-dark-surface rounded-lg shadow dark:shadow-lg p-4 flex items-start justify-between transition-all duration-300"
                 >
                   <div class="flex gap-3 flex-1">
-                    <span class="font-semibold text-forest-green">{{ q.number }}.</span>
-                    <p class="text-gray-700">{{ q.question }}</p>
+                    <span class="font-semibold text-forest-green dark:text-forest-green-dark transition-colors duration-300">{{ q.number }}.</span>
+                    <p class="text-gray-700 dark:text-dark-text-secondary transition-colors duration-300">{{ q.question }}</p>
                   </div>
 
                   <div v-if="authStore.isAdmin" class="flex gap-2 ml-4">
                     <button
                         @click="editExamQuestion(q)"
-                        class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+                        class="px-3 py-1 text-sm bg-gray-100 dark:bg-dark-surface hover:bg-gray-200 dark:hover:bg-dark-border rounded transition-colors duration-300 text-gray-700 dark:text-dark-text"
                     >
                       ✏️
                     </button>
                     <button
                         @click="deleteExamQuestion(q.id)"
-                        class="px-3 py-1 text-sm bg-red-100 hover:bg-red-200 text-red-600 rounded transition-colors"
+                        class="px-3 py-1 text-sm bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded transition-colors duration-300"
                     >
                       🗑️
                     </button>
