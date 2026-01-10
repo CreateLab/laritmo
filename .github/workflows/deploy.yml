@@ -54,16 +54,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Upload deploy script
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: 22
-          source: "scripts/deploy.sh"
-          target: "/tmp/"
-
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -71,12 +61,12 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 22
-          script: |
-            chmod +x /tmp/deploy.sh
-            /tmp/deploy.sh \
-              "${{ github.repository }}" \
-              "${{ secrets.GITHUB_TOKEN }}" \
-              "${{ github.actor }}" \
-              "${{ secrets.LARITMO_DATABASE_PASSWORD }}" \
-              "${{ secrets.LARITMO_AUTH_JWT_SECRET }}" \
-              "${{ secrets.MYSQL_ROOT_PASSWORD }}"
+          script_path: scripts/deploy.sh
+          envs: REPO_URL,GITHUB_TOKEN,GITHUB_ACTOR,LARITMO_DATABASE_PASSWORD,LARITMO_AUTH_JWT_SECRET,MYSQL_ROOT_PASSWORD
+        env:
+          REPO_URL: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          LARITMO_DATABASE_PASSWORD: ${{ secrets.LARITMO_DATABASE_PASSWORD }}
+          LARITMO_AUTH_JWT_SECRET: ${{ secrets.LARITMO_AUTH_JWT_SECRET }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
