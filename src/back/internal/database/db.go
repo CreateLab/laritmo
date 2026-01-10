@@ -6,10 +6,12 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/newrelic/go-agent/v3/integrations/nrmysql"
 )
 
 func Connect(dsn string) (*sql.DB, error) {
-	db, err := sql.Open("mysql", dsn)
+	// Используем nrmysql драйвер для автоматического трейсинга SQL-запросов в New Relic
+	db, err := sql.Open("nrmysql", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}

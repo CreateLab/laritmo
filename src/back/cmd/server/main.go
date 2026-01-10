@@ -20,9 +20,14 @@ import (
 	"github.com/CreateLab/laritmo/internal/services"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/newrelic/go-agent/v3/integrations/nrgin"
+	"github.com/newrelic/go-agent/v3/newrelic"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// nrApp - глобальный экземпляр New Relic Application для APM мониторинга
+var nrApp *newrelic.Application
 
 // @title           Laritmo API
 // @version         1.0
@@ -65,6 +70,23 @@ func main() {
 
 	slog.InfoContext(ctx, "Config loaded successfully")
 
+	// Инициализация New Relic APM
+	if cfg.NewRelic.Enabled {
+		nrApp, err = newrelic.NewApplication(
+			newrelic.ConfigAppName(cfg.NewRelic.AppName),
+			newrelic.ConfigLicense(cfg.NewRelic.LicenseKey),
+			newrelic.ConfigDistributedTracerEnabled(true),
+			newrelic.ConfigAppLogForwardingEnabled(true),
+		)
+		if err != nil {
+			slog.WarnContext(ctx, "⚠️ Failed to initialize New Relic", "error", err)
+		} else {
+			slog.InfoContext(ctx, "✅ New Relic APM initialized successfully", "app_name", cfg.NewRelic.AppName)
+		}
+	} else {
+		slog.InfoContext(ctx, "ℹ️ New Relic APM is disabled")
+	}
+
 	db, err := database.Connect(cfg.Database.DSN())
 	if err != nil {
 		slog.ErrorContext(ctx, "Failed to connect to database", "error", err)
@@ -93,6 +115,12 @@ func main() {
 
 	gin.SetMode(cfg.Server.Mode)
 	r := gin.Default()
+
+	// New Relic middleware должен быть первым для корректного трейсинга
+	if nrApp != nil {
+		r.Use(nrgin.Middleware(nrApp))
+		slog.InfoContext(ctx, "✅ New Relic Gin middleware enabled")
+	}
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173", "https://localhost:5173"},

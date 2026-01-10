@@ -11,6 +11,14 @@ type Config struct {
 	Server   ServerConfig   `mapstructure:"server"`
 	Database DatabaseConfig `mapstructure:"database"`
 	Auth     AuthConfig     `mapstructure:"auth"`
+	NewRelic NewRelicConfig `mapstructure:"newrelic"`
+}
+
+type NewRelicConfig struct {
+	Enabled    bool   `mapstructure:"enabled"`
+	AppName    string `mapstructure:"app_name"`
+	LicenseKey string `mapstructure:"license_key"`
+	LogLevel   string `mapstructure:"log_level"`
 }
 
 type ServerConfig struct {
@@ -68,6 +76,10 @@ func Load(configPath string) (*Config, error) {
 
 	viper.BindEnv("database.password", "LARITMO_DATABASE_PASSWORD")
 	viper.BindEnv("auth.jwt_secret", "LARITMO_AUTH_JWT_SECRET")
+
+	// New Relic configuration from environment variables
+	viper.BindEnv("newrelic.enabled", "NEWRELIC_ENABLED")
+	viper.BindEnv("newrelic.license_key", "NEWRELIC_LICENSE_KEY")
 
 	if configPath != "" {
 		viper.SetConfigFile(configPath)
