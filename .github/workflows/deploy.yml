@@ -54,6 +54,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Read deploy script
+        id: deploy_script
+        run: |
+          echo "SCRIPT<<EOF" >> $GITHUB_OUTPUT
+          cat scripts/deploy.sh >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -61,7 +68,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 22
-          script_path: scripts/deploy.sh
+          script: ${{ steps.deploy_script.outputs.SCRIPT }}  # ← Используй script вместо script_path
           envs: REPO_URL,GITHUB_TOKEN,GITHUB_ACTOR,LARITMO_DATABASE_PASSWORD,LARITMO_AUTH_JWT_SECRET,MYSQL_ROOT_PASSWORD,NEWRELIC_LICENSE_KEY
         env:
           REPO_URL: ${{ github.repository }}
