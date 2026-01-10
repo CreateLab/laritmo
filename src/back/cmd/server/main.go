@@ -77,11 +77,14 @@ func main() {
 			newrelic.ConfigLicense(cfg.NewRelic.LicenseKey),
 			newrelic.ConfigDistributedTracerEnabled(true),
 			newrelic.ConfigAppLogForwardingEnabled(true),
+			func(cfg *newrelic.Config) {
+				cfg.RuntimeSampler.Enabled = true
+			},
 		)
 		if err != nil {
 			slog.WarnContext(ctx, "⚠️ Failed to initialize New Relic", "error", err)
 		} else {
-			slog.InfoContext(ctx, "✅ New Relic APM initialized successfully", "app_name", cfg.NewRelic.AppName)
+			slog.InfoContext(ctx, "✅ New Relic initialized with runtime metrics", "app_name", cfg.NewRelic.AppName)
 		}
 	} else {
 		slog.InfoContext(ctx, "ℹ️ New Relic APM is disabled")
