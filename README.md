@@ -1,4 +1,4 @@
-# 🍄 Laritmo - Forest Academy
+# 🍄 Laritmo
 
 Educational portal with whimsical frog and mushroom theme. Built with Go and Vue 3.
 

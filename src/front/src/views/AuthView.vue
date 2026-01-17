@@ -7,10 +7,9 @@
     
     <div class="w-full max-w-md">
       <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-forest-dark dark:text-dark-text flex items-center justify-center gap-2 mb-2 transition-colors duration-300">
+        <h1 class="text-4xl font-bold text-forest-dark dark:text-dark-text flex items-center justify-center gap-2 transition-colors duration-300">
           <span class="frog-animation">🐸</span> Laritmo
         </h1>
-        <p class="text-sm text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Forest Academy</p>
       </div>
 
       <div class="bg-white dark:bg-dark-surface rounded-xl shadow-lg p-8 transition-colors duration-300">

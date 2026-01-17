@@ -3,7 +3,6 @@
     <header class="mb-8">
       <h1 class="text-4xl font-bold text-forest-dark dark:text-dark-text flex items-center gap-2 transition-colors duration-300">
         <span class="frog-animation">🐸</span> Laritmo
-        <span class="text-sm font-normal text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Forest Academy</span>
       </h1>
     </header>
 
