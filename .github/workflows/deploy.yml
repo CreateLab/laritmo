@@ -51,22 +51,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to VPS via SSH
+      - name: Prepare deployment directory
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 22
-          envs: REPO_URL,GITHUB_TOKEN,GITHUB_ACTOR,LARITMO_DATABASE_PASSWORD,LARITMO_AUTH_JWT_SECRET,MYSQL_ROOT_PASSWORD,NEWRELIC_LICENSE_KEY
+          envs: REPO_URL
           script: |
             set -e
-            
+            echo "Creating deployment directory..."
             mkdir -p /opt/laritmo
             cd /opt/laritmo
             
-            curl -o docker-compose.prod.yml https://raw.githubusercontent.com/${REPO_URL}/master/docker-compose.prod.yml
+            echo "Downloading docker-compose configuration..."
+            curl -f -o docker-compose.prod.yml https://raw.githubusercontent.com/${REPO_URL}/master/docker-compose.prod.yml
+            echo "Configuration downloaded successfully"
+        env:
+          REPO_URL: ${{ github.repository }}
+
+      - name: Create environment configuration
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          envs: LARITMO_DATABASE_PASSWORD,LARITMO_AUTH_JWT_SECRET,MYSQL_ROOT_PASSWORD,NEWRELIC_LICENSE_KEY
+          script: |
+            set -e
+            cd /opt/laritmo
             
+            echo "Creating .env file..."
             cat > .env << EOF
             LARITMO_SERVER_HOST=laritmo.ru
             LARITMO_SERVER_USE_TLS=false
@@ -76,32 +93,143 @@ jobs:
             NEWRELIC_ENABLED=true
             NEWRELIC_LICENSE_KEY=${NEWRELIC_LICENSE_KEY}
             EOF
-            
-            echo "${GITHUB_TOKEN}" | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
-            
-            docker pull ghcr.io/createlab/laritmo:latest
-            
-            docker compose -f docker-compose.prod.yml down
-            docker compose -f docker-compose.prod.yml up -d
-            
-            echo "Waiting for services to be ready..."
-            sleep 15
-            
-            docker compose -f docker-compose.prod.yml exec -T db mariadb -u laritmo -p"${LARITMO_DATABASE_PASSWORD}" laritmo -e "SELECT 'Database is ready';" || echo "Database check failed, but continuing..."
-            
-            echo "Applying database migrations..."
-            docker compose -f docker-compose.prod.yml exec -T app goose -dir /app/migrations mysql "laritmo:${LARITMO_DATABASE_PASSWORD}@tcp(db:3306)/laritmo" up || echo "Migration failed, check logs"
-            
-            docker compose -f docker-compose.prod.yml ps
-            
-            echo "Deployment complete!"
-            
-            docker image prune -f
+            echo "Environment configuration created"
         env:
-          REPO_URL: ${{ github.repository }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_ACTOR: ${{ github.actor }}
           LARITMO_DATABASE_PASSWORD: ${{ secrets.LARITMO_DATABASE_PASSWORD }}
           LARITMO_AUTH_JWT_SECRET: ${{ secrets.LARITMO_AUTH_JWT_SECRET }}
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
           NEWRELIC_LICENSE_KEY: ${{ secrets.NEWRELIC_LICENSE_KEY }}
+
+      - name: Login to GitHub Container Registry
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          envs: GITHUB_TOKEN,GITHUB_ACTOR
+          script: |
+            set -e
+            echo "Logging in to GitHub Container Registry..."
+            echo "${GITHUB_TOKEN}" | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
+            echo "Successfully logged in to GHCR"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
+
+      - name: Pull latest Docker image
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+            host: ${{ secrets.VPS_HOST }}
+            username: ${{ secrets.VPS_USER }}
+            key: ${{ secrets.VPS_SSH_KEY }}
+            port: 22
+            script: |
+              set -e
+              echo "Pulling latest image..."
+              docker pull ghcr.io/createlab/laritmo:latest
+              echo "Image pulled successfully"
+
+      - name: Stop old containers
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            set -e
+            cd /opt/laritmo
+            echo "Stopping old containers..."
+            docker compose -f docker-compose.prod.yml down
+            echo "Old containers stopped"
+
+      - name: Start new containers
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            set -e
+            cd /opt/laritmo
+            echo "Starting new containers..."
+            docker compose -f docker-compose.prod.yml up -d
+            echo "Containers started"
+
+      - name: Wait for services to be ready
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          envs: LARITMO_DATABASE_PASSWORD
+          script: |
+            set -e
+            cd /opt/laritmo
+            
+            echo "Waiting for services to start..."
+            sleep 15
+            
+            echo "Checking database connectivity..."
+            docker compose -f docker-compose.prod.yml exec -T db mariadb \
+              -u laritmo \
+              -p"${LARITMO_DATABASE_PASSWORD}" \
+              laritmo \
+              -e "SELECT 'Database is ready' as status;"
+            
+            echo "Database is accessible"
+        env:
+          LARITMO_DATABASE_PASSWORD: ${{ secrets.LARITMO_DATABASE_PASSWORD }}
+
+      - name: Apply database migrations
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          envs: LARITMO_DATABASE_PASSWORD
+          script: |
+            set -e
+            cd /opt/laritmo
+            
+            echo "Applying database migrations..."
+            docker compose -f docker-compose.prod.yml exec -T app goose \
+              -dir /app/migrations \
+              mysql "laritmo:${LARITMO_DATABASE_PASSWORD}@tcp(db:3306)/laritmo" \
+              up
+            
+            echo "Migrations applied successfully"
+        env:
+          LARITMO_DATABASE_PASSWORD: ${{ secrets.LARITMO_DATABASE_PASSWORD }}
+
+      - name: Verify deployment
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            set -e
+            cd /opt/laritmo
+            
+            echo "Checking container status..."
+            docker compose -f docker-compose.prod.yml ps
+            
+            echo "Deployment verification complete!"
+
+      - name: Cleanup old images
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            echo "Cleaning up old Docker images..."
+            docker image prune -f
+            echo "Cleanup complete"
