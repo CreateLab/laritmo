@@ -45,8 +45,34 @@ func AuthMiddleware(jwtManager *auth.JWTManager) gin.HandlerFunc {
 func AdminOnly() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		role, exists := c.Get("role")
-		if !exists || role != "admin" {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Admin privileges required"})
+		if !exists {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
+			c.Abort()
+			return
+		}
+
+		roleStr, ok := role.(string)
+		if !ok || (roleStr != "admin" && roleStr != "owner") {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}
+
+func OwnerOnly() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role, exists := c.Get("role")
+		if !exists {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Owner access required"})
+			c.Abort()
+			return
+		}
+
+		roleStr, ok := role.(string)
+		if !ok || roleStr != "owner" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Owner access required"})
 			c.Abort()
 			return
 		}

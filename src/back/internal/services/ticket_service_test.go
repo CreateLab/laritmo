@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// MockExamQuestionRepository - мок для ExamQuestionRepository
+// MockExamQuestionRepository - mock for ExamQuestionRepository
 type MockExamQuestionRepository struct {
 	mock.Mock
 }
@@ -50,7 +50,7 @@ func TestTicketService_GenerateRandomTicket(t *testing.T) {
 				assert.NotNil(t, ticket)
 				assert.Equal(t, 1, ticket.Number)
 				assert.Len(t, ticket.Questions, 3)
-				// Проверяем, что все вопросы уникальны
+				// Check that all questions are unique
 				questionIDs := make(map[int]bool)
 				for _, q := range ticket.Questions {
 					assert.False(t, questionIDs[q.Number], "duplicate question number")
@@ -79,14 +79,14 @@ func TestTicketService_GenerateRandomTicket(t *testing.T) {
 			name:           "invalid questions count - too low",
 			courseID:       1,
 			questionsCount: 0,
-			// Не настраиваем мок, так как валидация происходит до обращения к репозиторию
+			// Don't setup mock since validation happens before repository call
 			expectedError: "questions count must be between 1 and 50",
 		},
 		{
 			name:           "invalid questions count - too high",
 			courseID:       1,
 			questionsCount: 51,
-			// Не настраиваем мок, так как валидация происходит до обращения к репозиторию
+			// Don't setup mock since validation happens before repository call
 			expectedError: "questions count must be between 1 and 50",
 		},
 		{
@@ -102,12 +102,12 @@ func TestTicketService_GenerateRandomTicket(t *testing.T) {
 			validateTicket: func(t *testing.T, ticket *models.Ticket) {
 				assert.NotNil(t, ticket)
 				assert.Len(t, ticket.Questions, 2)
-				// Проверяем, что вопросы из разных разделов
+				// Check that questions are from different sections
 				sections := make(map[string]bool)
 				for _, q := range ticket.Questions {
 					sections[q.Section] = true
 				}
-				// Должны быть вопросы из разных разделов
+				// Should have questions from different sections
 				assert.GreaterOrEqual(t, len(sections), 1)
 			},
 		},
@@ -116,7 +116,7 @@ func TestTicketService_GenerateRandomTicket(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockRepo := new(MockExamQuestionRepository)
-			// Настраиваем мок только если есть mockQuestions или mockError (т.е. когда будет вызов репозитория)
+			// Setup mock only if mockQuestions or mockError exists (i.e., when repository will be called)
 			if tt.mockQuestions != nil || tt.mockError != nil {
 				if tt.mockError != nil {
 					mockRepo.On("GetByCourseID", tt.courseID).Return(nil, tt.mockError)
@@ -172,12 +172,12 @@ func TestTicketService_GenerateMultipleTickets(t *testing.T) {
 			},
 			validateTickets: func(t *testing.T, tickets []models.Ticket) {
 				assert.Len(t, tickets, 3)
-				// Проверяем нумерацию
+				// Check numbering
 				for i, ticket := range tickets {
 					assert.Equal(t, i+1, ticket.Number)
 					assert.Len(t, ticket.Questions, 2)
 				}
-				// Проверяем, что билеты уникальны (не все одинаковые)
+				// Check that tickets are unique (not all the same)
 				firstTicketQuestions := tickets[0].Questions
 				allSame := true
 				for _, ticket := range tickets[1:] {
@@ -195,8 +195,8 @@ func TestTicketService_GenerateMultipleTickets(t *testing.T) {
 						break
 					}
 				}
-				// С высокой вероятностью билеты должны отличаться
-				// Но если вопросов мало, они могут совпадать - это нормально
+				// With high probability tickets should differ
+				// But if there are few questions, they may match - this is normal
 			},
 		},
 		{
@@ -223,7 +223,7 @@ func TestTicketService_GenerateMultipleTickets(t *testing.T) {
 			courseID:           1,
 			ticketCount:        0,
 			questionsPerTicket: 2,
-			// Не настраиваем мок, так как валидация происходит до обращения к репозиторию
+			// Don't setup mock since validation happens before repository call
 			expectedError: "ticket count must be between 1 and 100",
 		},
 		{
@@ -231,7 +231,7 @@ func TestTicketService_GenerateMultipleTickets(t *testing.T) {
 			courseID:           1,
 			ticketCount:        101,
 			questionsPerTicket: 2,
-			// Не настраиваем мок, так как валидация происходит до обращения к репозиторию
+			// Don't setup mock since validation happens before repository call
 			expectedError: "ticket count must be between 1 and 100",
 		},
 		{
@@ -239,7 +239,7 @@ func TestTicketService_GenerateMultipleTickets(t *testing.T) {
 			courseID:           1,
 			ticketCount:        3,
 			questionsPerTicket: 0,
-			// Не настраиваем мок, так как валидация происходит до обращения к репозиторию
+			// Don't setup mock since validation happens before repository call
 			expectedError: "questions per ticket must be between 1 and 50",
 		},
 		{
@@ -247,7 +247,7 @@ func TestTicketService_GenerateMultipleTickets(t *testing.T) {
 			courseID:           1,
 			ticketCount:        3,
 			questionsPerTicket: 51,
-			// Не настраиваем мок, так как валидация происходит до обращения к репозиторию
+			// Don't setup mock since validation happens before repository call
 			expectedError: "questions per ticket must be between 1 and 50",
 		},
 		{
@@ -275,7 +275,7 @@ func TestTicketService_GenerateMultipleTickets(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockRepo := new(MockExamQuestionRepository)
-			// Настраиваем мок только если есть mockQuestions или mockError (т.е. когда будет вызов репозитория)
+			// Setup mock only if mockQuestions or mockError exists (i.e., when repository will be called)
 			if tt.mockQuestions != nil || tt.mockError != nil {
 				if tt.mockError != nil {
 					mockRepo.On("GetByCourseID", tt.courseID).Return(nil, tt.mockError)
@@ -306,7 +306,7 @@ func TestTicketService_GenerateMultipleTickets(t *testing.T) {
 func TestTicketService_QuestionDistribution(t *testing.T) {
 	ctx := context.Background()
 
-	// Создаем вопросы из разных разделов
+	// Create questions from different sections
 	mockQuestions := []models.ExamQuestion{
 		{ID: 1, CourseID: 1, Number: 1, Section: "Section A", Question: "Question A1"},
 		{ID: 2, CourseID: 1, Number: 2, Section: "Section A", Question: "Question A2"},
@@ -321,18 +321,18 @@ func TestTicketService_QuestionDistribution(t *testing.T) {
 
 	service := NewTicketService(mockRepo)
 
-	// Генерируем билет с количеством вопросов >= количеству разделов
+	// Generate ticket with questions count >= sections count
 	ticket, err := service.GenerateRandomTicket(ctx, 1, 3)
 	assert.NoError(t, err)
 	assert.NotNil(t, ticket)
 	assert.Len(t, ticket.Questions, 3)
 
-	// Проверяем, что вопросы из разных разделов (должны быть представлены разные разделы)
+	// Check that questions are from different sections (different sections should be represented)
 	sections := make(map[string]int)
 	for _, q := range ticket.Questions {
 		sections[q.Section]++
 	}
-	// Должно быть минимум 2 разных раздела (так как вопросов 3, а разделов 3)
+	// Should have at least 2 different sections (since 3 questions and 3 sections)
 	assert.GreaterOrEqual(t, len(sections), 1)
 
 	mockRepo.AssertExpectations(t)
@@ -357,7 +357,7 @@ func TestTicketService_NoDuplicates(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, ticket)
 
-	// Проверяем отсутствие дубликатов
+	// Check for no duplicates
 	questionNumbers := make(map[int]bool)
 	for _, q := range ticket.Questions {
 		assert.False(t, questionNumbers[q.Number], "duplicate question number %d", q.Number)

@@ -33,6 +33,11 @@ const router = createRouter({
             name: 'lab-detail',
             component: LabDetailView,
         },
+        {
+            path: '/admin/users',
+            name: 'admin-users',
+            component: () => import('@/views/UsersView.vue'),
+        },
     ],
 })
 

@@ -50,6 +50,7 @@ func TestAuthHandler_Login(t *testing.T) {
 			Email:        "test@example.com",
 			PasswordHash: string(hashedPassword),
 			Role:         "admin",
+			IsActive:     true,
 			CreatedAt:    time.Now(),
 			UpdatedAt:    time.Now(),
 		}
@@ -129,6 +130,7 @@ func TestAuthHandler_Login(t *testing.T) {
 			Email:        "test@example.com",
 			PasswordHash: string(hashedPassword),
 			Role:         "admin",
+			IsActive:     true,
 			CreatedAt:    time.Now(),
 			UpdatedAt:    time.Now(),
 		}

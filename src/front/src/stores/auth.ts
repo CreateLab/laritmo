@@ -31,7 +31,10 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     const isAuthenticated = computed(() => !!token.value && !!user.value)
-    const isAdmin = computed(() => user.value?.role === 'admin')
+    const isAdmin = computed(() => 
+        user.value?.role === 'admin' || user.value?.role === 'owner'
+    )
+    const isOwner = computed(() => user.value?.role === 'owner')
 
     const login = async (username: string, password: string) => {
         const { data } = await axios.post('/auth/login', { username, password })
@@ -58,13 +61,22 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
+    const changeMyPassword = async (oldPassword: string, newPassword: string) => {
+        await axios.put('/auth/me/password', {
+            old_password: oldPassword,
+            new_password: newPassword,
+        })
+    }
+
     return {
         token,
         user,
         isAuthenticated,
         isAdmin,
+        isOwner,
         login,
         logout,
         initAuth,
+        changeMyPassword,
     }
 })

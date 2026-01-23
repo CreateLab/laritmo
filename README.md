@@ -5,11 +5,14 @@ Educational portal with whimsical frog and mushroom theme. Built with Go and Vue
 ## ✨ Features
 
 - 📚 Course management (lectures, labs, grade sheets, exam questions)
-- 🔐 JWT authentication with role-based access (Admin/Student)
+- 🔐 JWT authentication with role-based access (Owner/Admin/Student)
+- 👥 User management system (owner-only)
+- 🎫 Exam ticket generation with random question selection
 - 🎨 Beautiful UI with mushroom and frog theme with animations
 - 📱 Responsive design
 - 🔬 GitHub integration for lab assignments
 - 📝 Markdown support with syntax highlighting
+- 🌙 Dark mode support
 - 🐸 Frog animation on page load
 
 ## 🛠️ Tech Stack
@@ -122,11 +125,11 @@ goose -dir migrations mysql "eduuser:edupass@tcp(localhost:3306)/edu_portal" up
 goose -dir migrations mysql "eduuser:edupass@tcp(localhost:3306)/edu_portal" status
 ```
 
-### Step 5: Create Admin User
+### Step 5: Create Owner User
 ```bash
 cd src/back
 
-# Run admin creation tool
+# Run admin creation tool (creates user with 'admin' role)
 go run cmd/createadmin/main.go
 
 # Enter credentials when prompted:
@@ -134,6 +137,13 @@ go run cmd/createadmin/main.go
 # Email: admin@example.com
 # Password: admin123
 ```
+
+**Note:** The first user should be manually promoted to 'owner' role in the database:
+```sql
+UPDATE users SET role = 'owner' WHERE username = 'admin';
+```
+
+Only owner can manage other users through the web interface.
 
 ---
 
@@ -259,19 +269,33 @@ Swagger UI available at: https://localhost:8443/swagger/index.html (debug mode o
 ### Key Endpoints:
 
 **Public:**
-- `POST /auth/login` - Login
+- `POST /api/auth/login` - Login
 - `GET /api/courses` - List courses
 - `GET /api/lectures/:id` - Get lecture
 - `GET /api/labs/:id` - Get lab
+- `GET /api/courses/:id/tickets/random` - Generate random ticket
 
-**Admin (requires JWT):**
+**Admin (requires JWT + admin/owner role):**
 - `POST /api/admin/courses` - Create course
 - `PUT /api/admin/lectures/:id` - Update lecture
 - `DELETE /api/admin/labs/:id` - Delete lab
+- `POST /api/admin/courses/:id/tickets/generate` - Generate tickets document
+
+**Owner only (requires JWT + owner role):**
+- `GET /api/admin/users` - List all admins
+- `POST /api/admin/users` - Create user
+- `PUT /api/admin/users/:id` - Update user
+- `DELETE /api/admin/users/:id` - Delete user
+- `PUT /api/admin/users/:id/activate` - Activate user
+- `PUT /api/admin/users/:id/deactivate` - Deactivate user
+- `PUT /api/admin/users/:id/password` - Reset user password
+
+**Authenticated (any logged-in user):**
+- `PUT /api/auth/me/password` - Change own password
 
 ---
 
-## 🔐 Authentication
+## 🔐 Authentication & Roles
 
 Authentication is handled via a dedicated login page at `/auth`:
 1. Navigate to `/auth` to access the login form
@@ -279,7 +303,23 @@ Authentication is handled via a dedicated login page at `/auth`:
 3. Token stored in localStorage → Automatically attached to requests
 4. Redirected to home page after successful login
 
-Admin features (Create/Edit/Delete) only visible when logged in as admin.
+### User Roles
+
+| Role | Description | Permissions |
+|------|-------------|-------------|
+| **Owner** | System owner | Full access + user management |
+| **Admin** | Administrator | Create/Edit/Delete courses, lectures, labs, questions |
+| **Student** | Regular user | View content, generate tickets |
+
+### User Management (Owner only)
+
+Access via header button "👥 Users" (visible only to owner):
+- Create/edit/delete admin accounts
+- Activate/deactivate users
+- Reset passwords for other users
+- View all administrators
+
+**Note:** Owner account cannot be modified or deleted for security.
 
 ---
 

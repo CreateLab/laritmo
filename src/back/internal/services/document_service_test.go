@@ -22,16 +22,16 @@ func TestDocumentService_GenerateTicketsDocument(t *testing.T) {
 				{
 					Number: 1,
 					Questions: []models.Question{
-						{Number: 1, Section: "Основы", Question: "Что такое Go?"},
-						{Number: 2, Section: "Продвинутое", Question: "Что такое горутины?"},
+						{Number: 1, Section: "Basics", Question: "What is Go?"},
+						{Number: 2, Section: "Advanced", Question: "What are goroutines?"},
 					},
 				},
 			},
 			validateOutput: func(t *testing.T, output []byte) {
 				text := string(output)
-				assert.Contains(t, text, "Билет № 1")
-				assert.Contains(t, text, "1. Что такое Go?")
-				assert.Contains(t, text, "2. Что такое горутины?")
+				assert.Contains(t, text, "Ticket #1")
+				assert.Contains(t, text, "1. What is Go?")
+				assert.Contains(t, text, "2. What are goroutines?")
 			},
 		},
 		{
@@ -40,30 +40,30 @@ func TestDocumentService_GenerateTicketsDocument(t *testing.T) {
 				{
 					Number: 1,
 					Questions: []models.Question{
-						{Number: 1, Section: "Раздел A", Question: "Вопрос 1"},
+						{Number: 1, Section: "Section A", Question: "Question 1"},
 					},
 				},
 				{
 					Number: 2,
 					Questions: []models.Question{
-						{Number: 2, Section: "Раздел B", Question: "Вопрос 2"},
+						{Number: 2, Section: "Section B", Question: "Question 2"},
 					},
 				},
 				{
 					Number: 3,
 					Questions: []models.Question{
-						{Number: 3, Section: "Раздел C", Question: "Вопрос 3"},
+						{Number: 3, Section: "Section C", Question: "Question 3"},
 					},
 				},
 			},
 			validateOutput: func(t *testing.T, output []byte) {
 				text := string(output)
-				assert.Contains(t, text, "Билет № 1")
-				assert.Contains(t, text, "Билет № 2")
-				assert.Contains(t, text, "Билет № 3")
-				assert.Contains(t, text, "Вопрос 1")
-				assert.Contains(t, text, "Вопрос 2")
-				assert.Contains(t, text, "Вопрос 3")
+				assert.Contains(t, text, "Ticket #1")
+				assert.Contains(t, text, "Ticket #2")
+				assert.Contains(t, text, "Ticket #3")
+				assert.Contains(t, text, "Question 1")
+				assert.Contains(t, text, "Question 2")
+				assert.Contains(t, text, "Question 3")
 			},
 		},
 		{
@@ -79,37 +79,37 @@ func TestDocumentService_GenerateTicketsDocument(t *testing.T) {
 				{
 					Number: 1,
 					Questions: []models.Question{
-						{Number: 1, Section: "Основы", Question: "Единственный вопрос"},
+						{Number: 1, Section: "Basics", Question: "Single question"},
 					},
 				},
 			},
 			validateOutput: func(t *testing.T, output []byte) {
 				text := string(output)
-				assert.Contains(t, text, "Билет № 1")
-				assert.Contains(t, text, "1. Единственный вопрос")
+				assert.Contains(t, text, "Ticket #1")
+				assert.Contains(t, text, "1. Single question")
 			},
 		},
 		{
-			name: "UTF-8 encoding with Russian characters",
+			name: "UTF-8 encoding with special characters",
 			tickets: []models.Ticket{
 				{
 					Number: 1,
 					Questions: []models.Question{
-						{Number: 1, Section: "Основы программирования", Question: "Что такое переменная в программировании?"},
-						{Number: 2, Section: "Алгоритмы и структуры данных", Question: "Объясните принцип работы стека."},
+						{Number: 1, Section: "Programming basics", Question: "What is a variable in programming?"},
+						{Number: 2, Section: "Algorithms and data structures", Question: "Explain how a stack works."},
 					},
 				},
 			},
 			validateOutput: func(t *testing.T, output []byte) {
 				text := string(output)
-				// Проверяем, что русские символы корректно отображаются
-				assert.Contains(t, text, "Что такое переменная")
-				assert.Contains(t, text, "принцип работы стека")
+				// Check that characters are correctly displayed
+				assert.Contains(t, text, "What is a variable")
+				assert.Contains(t, text, "how a stack works")
 
-				// Проверяем структуру
+				// Check structure
 				lines := strings.Split(text, "\n")
-				assert.Contains(t, lines[0], "Билет № 1")
-				assert.Contains(t, lines[2], "1. Что такое переменная")
+				assert.Contains(t, lines[0], "Ticket #1")
+				assert.Contains(t, lines[2], "1. What is a variable")
 			},
 		},
 		{
@@ -126,11 +126,11 @@ func TestDocumentService_GenerateTicketsDocument(t *testing.T) {
 			},
 			validateOutput: func(t *testing.T, output []byte) {
 				text := string(output)
-				// В билете вопросы должны быть пронумерованы 1, 2, 3 (не 5, 10, 15)
+				// In ticket, questions should be numbered 1, 2, 3 (not 5, 10, 15)
 				assert.Contains(t, text, "1. Question 5")
 				assert.Contains(t, text, "2. Question 10")
 				assert.Contains(t, text, "3. Question 15")
-				// Но оригинальный номер вопроса не должен быть в тексте билета
+				// Original question number should not be in ticket text
 				assert.NotContains(t, text, "5. Question 5")
 			},
 		},
@@ -143,10 +143,10 @@ func TestDocumentService_GenerateTicketsDocument(t *testing.T) {
 			},
 			validateOutput: func(t *testing.T, output []byte) {
 				text := string(output)
-				// Проверяем, что номера билетов правильные
-				assert.Contains(t, text, "Билет № 1")
-				assert.Contains(t, text, "Билет № 2")
-				assert.Contains(t, text, "Билет № 3")
+				// Check that ticket numbers are correct
+				assert.Contains(t, text, "Ticket #1")
+				assert.Contains(t, text, "Ticket #2")
+				assert.Contains(t, text, "Ticket #3")
 			},
 		},
 	}
@@ -174,14 +174,14 @@ func TestDocumentService_FormatStructure(t *testing.T) {
 	text := string(output)
 	lines := strings.Split(text, "\n")
 
-	// Проверяем структуру:
-	// Билет № 1
+	// Check structure:
+	// Ticket #1
 	//
 	// 1. Question 1
 	//
 	// 2. Question 2
 
-	assert.Contains(t, lines[0], "Билет № 1")
+	assert.Contains(t, lines[0], "Ticket #1")
 	assert.True(t, lines[1] == "", "line 1 should be empty")
 	assert.Contains(t, lines[2], "1. Question 1")
 	assert.Contains(t, lines[3], "2. Question 2")
@@ -200,43 +200,43 @@ func TestDocumentService_PageBreaks(t *testing.T) {
 	t.Run("all in a row (ticketsPerPage=0)", func(t *testing.T) {
 		output := service.GenerateTicketsDocument(tickets, 0)
 		text := string(output)
-		// Не должно быть разрывов страницы и разделителей
+		// Should not have page breaks and separators
 		formFeedCount := strings.Count(text, "\f")
 		assert.Equal(t, 0, formFeedCount)
 		assert.NotContains(t, text, "═")
 		assert.NotContains(t, text, "----")
-		// Должны быть все билеты
-		assert.Contains(t, text, "Билет № 1")
-		assert.Contains(t, text, "Билет № 4")
+		// Should have all tickets
+		assert.Contains(t, text, "Ticket #1")
+		assert.Contains(t, text, "Ticket #4")
 	})
 
 	t.Run("1 ticket per page", func(t *testing.T) {
 		output := service.GenerateTicketsDocument(tickets, 1)
 		text := string(output)
-		// Должно быть 3 разрыва страницы (после билетов 1, 2, 3)
+		// Should have 3 page breaks (after tickets 1, 2, 3)
 		formFeedCount := strings.Count(text, "\f")
 		assert.Equal(t, 3, formFeedCount)
-		// Должны быть визуальные разделители
+		// Should have visual separators
 		assert.Contains(t, text, "═")
 	})
 
 	t.Run("2 tickets per page", func(t *testing.T) {
 		output := service.GenerateTicketsDocument(tickets, 2)
 		text := string(output)
-		// Должно быть 1 разрыв страницы (после билета 2)
+		// Should have 1 page break (after ticket 2)
 		formFeedCount := strings.Count(text, "\f")
 		assert.Equal(t, 1, formFeedCount)
-		// Должны быть разделители между билетами на одной странице
+		// Should have separators between tickets on same page
 		assert.Contains(t, text, "----")
 	})
 
 	t.Run("all tickets on one page (ticketsPerPage > count)", func(t *testing.T) {
 		output := service.GenerateTicketsDocument(tickets, 10)
 		text := string(output)
-		// Не должно быть разрывов страницы
+		// Should not have page breaks
 		formFeedCount := strings.Count(text, "\f")
 		assert.Equal(t, 0, formFeedCount)
-		// Но должны быть разделители между билетами
+		// But should have separators between tickets
 		assert.Contains(t, text, "----")
 	})
 }

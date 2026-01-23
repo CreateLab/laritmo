@@ -11,18 +11,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TicketServiceInterface - интерфейс для сервиса генерации билетов
+// TicketServiceInterface - interface for ticket generation service
 type TicketServiceInterface interface {
 	GenerateRandomTicket(ctx context.Context, courseID int, questionsCount int) (*models.Ticket, error)
 	GenerateMultipleTickets(ctx context.Context, courseID int, ticketCount, questionsPerTicket int) ([]models.Ticket, error)
 }
 
-// DocumentServiceInterface - интерфейс для сервиса генерации документов
+// DocumentServiceInterface - interface for document generation service
 type DocumentServiceInterface interface {
 	GenerateTicketsDocument(tickets []models.Ticket, ticketsPerPage int) []byte
 }
 
-// CourseRepositoryInterface - интерфейс для репозитория курсов
+// CourseRepositoryInterface - interface for course repository
 type CourseRepositoryInterface interface {
 	GetByID(id int) (*models.Course, error)
 }
@@ -68,7 +68,7 @@ func (h *TicketHandler) GetRandomTicket(c *gin.Context) {
 		return
 	}
 
-	// Проверяем существование курса
+	// Check if course exists
 	course, err := h.courseRepo.GetByID(courseID)
 	if err != nil {
 		h.logger.ErrorContext(c.Request.Context(), "Failed to get course", "error", err, "course_id", courseID)
@@ -80,7 +80,7 @@ func (h *TicketHandler) GetRandomTicket(c *gin.Context) {
 		return
 	}
 
-	// Получаем количество вопросов из query параметра
+	// Get questions count from query parameter
 	questionsStr := c.DefaultQuery("questions", "10")
 	questionsCount, err := strconv.Atoi(questionsStr)
 	if err != nil {
@@ -89,13 +89,13 @@ func (h *TicketHandler) GetRandomTicket(c *gin.Context) {
 		return
 	}
 
-	// Валидация количества вопросов
+	// Validate questions count
 	if questionsCount < 1 || questionsCount > 50 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Questions count must be between 1 and 50"})
 		return
 	}
 
-	// Генерируем билет
+	// Generate ticket
 	ticket, err := h.ticketService.GenerateRandomTicket(c.Request.Context(), courseID, questionsCount)
 	if err != nil {
 		h.logger.ErrorContext(c.Request.Context(), "Failed to generate ticket", "error", err, "course_id", courseID)
@@ -130,7 +130,7 @@ func (h *TicketHandler) GenerateTicketsDocument(c *gin.Context) {
 		return
 	}
 
-	// Проверяем существование курса
+	// Check if course exists
 	course, err := h.courseRepo.GetByID(courseID)
 	if err != nil {
 		h.logger.ErrorContext(c.Request.Context(), "Failed to get course", "error", err, "course_id", courseID)
@@ -142,7 +142,7 @@ func (h *TicketHandler) GenerateTicketsDocument(c *gin.Context) {
 		return
 	}
 
-	// Валидация body
+	// Validate request body
 	var req models.TicketGenerationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.logger.ErrorContext(c.Request.Context(), "Validation error", "error", err)
@@ -150,7 +150,7 @@ func (h *TicketHandler) GenerateTicketsDocument(c *gin.Context) {
 		return
 	}
 
-	// Генерируем билеты
+	// Generate tickets
 	tickets, err := h.ticketService.GenerateMultipleTickets(c.Request.Context(), courseID, req.TicketCount, req.QuestionsPerTicket)
 	if err != nil {
 		h.logger.ErrorContext(c.Request.Context(), "Failed to generate tickets", "error", err, "course_id", courseID)
@@ -158,16 +158,16 @@ func (h *TicketHandler) GenerateTicketsDocument(c *gin.Context) {
 		return
 	}
 
-	// Генерируем TXT документ
-	// ticketsPerPage: 0 = все подряд, 1+ = разбивка по страницам
+	// Generate TXT document
+	// ticketsPerPage: 0 = all in sequence, 1+ = pagination
 	document := h.documentService.GenerateTicketsDocument(tickets, req.TicketsPerPage)
 
-	// Создаем имя файла из названия курса
+	// Create filename from course name
 	courseSlug := strings.ToLower(strings.ReplaceAll(course.Name, " ", "_"))
 	courseSlug = strings.ReplaceAll(courseSlug, "/", "_")
 	filename := "tickets_" + courseSlug + ".txt"
 
-	// Устанавливаем заголовки для скачивания файла
+	// Set headers for file download
 	c.Header("Content-Type", "text/plain; charset=utf-8")
 	c.Header("Content-Disposition", "attachment; filename="+filename)
 	c.Data(http.StatusOK, "text/plain; charset=utf-8", document)

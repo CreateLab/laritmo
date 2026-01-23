@@ -82,6 +82,12 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
+	if !user.IsActive {
+		h.logger.ErrorContext(c.Request.Context(), "Account deactivated", "username", req.Username)
+		c.JSON(http.StatusForbidden, gin.H{"error": "Account is deactivated"})
+		return
+	}
+
 	token, err := h.jwtManager.GenerateToken(user)
 	if err != nil {
 		h.logger.ErrorContext(c.Request.Context(), "Token generation error", "error", err)

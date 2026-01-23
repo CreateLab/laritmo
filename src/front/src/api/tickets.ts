@@ -14,7 +14,7 @@ export interface Question {
 export interface TicketGenerationRequest {
   questionsPerTicket: number
   ticketCount: number
-  ticketsPerPage?: number // Количество билетов на страницу (по умолчанию 1)
+  ticketsPerPage?: number // Number of tickets per page (default 1)
 }
 
 interface TicketResponse {
@@ -22,10 +22,10 @@ interface TicketResponse {
 }
 
 /**
- * Генерирует один случайный билет для курса
- * @param courseId ID курса
- * @param questionsCount Количество вопросов в билете (1-50)
- * @returns Сгенерированный билет
+ * Generates a single random ticket for a course
+ * @param courseId Course ID
+ * @param questionsCount Number of questions per ticket (1-50)
+ * @returns Generated ticket
  */
 export async function generateRandomTicket(
   courseId: number,
@@ -41,10 +41,10 @@ export async function generateRandomTicket(
 }
 
 /**
- * Генерирует несколько билетов и возвращает TXT файл для скачивания
- * @param courseId ID курса
- * @param request Параметры генерации
- * @returns Blob с содержимым TXT файла
+ * Generates multiple tickets and returns TXT file for download
+ * @param courseId Course ID
+ * @param request Generation parameters
+ * @returns Blob with TXT file contents
  */
 export async function generateTicketsDocument(
   courseId: number,
@@ -60,14 +60,14 @@ export async function generateTicketsDocument(
     )
     return data
   } catch (error: any) {
-    // Если сервер вернул ошибку в виде JSON, но мы ожидали blob
+    // If server returned JSON error but we expected blob
     if (error.response?.data instanceof Blob) {
       const text = await error.response.data.text()
       try {
         const jsonError = JSON.parse(text)
-        throw new Error(jsonError.error || 'Ошибка при генерации билетов')
+        throw new Error(jsonError.error || 'Error generating tickets')
       } catch {
-        throw new Error('Ошибка при генерации билетов')
+        throw new Error('Error generating tickets')
       }
     }
     throw error
@@ -75,9 +75,9 @@ export async function generateTicketsDocument(
 }
 
 /**
- * Скачивает blob как файл
- * @param blob Blob для скачивания
- * @param filename Имя файла
+ * Downloads blob as file
+ * @param blob Blob to download
+ * @param filename File name
  */
 export function downloadBlob(blob: Blob, filename: string): void {
   const url = window.URL.createObjectURL(blob)

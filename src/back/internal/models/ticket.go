@@ -14,5 +14,5 @@ type Question struct {
 type TicketGenerationRequest struct {
 	QuestionsPerTicket int `json:"questionsPerTicket" binding:"required,min=1,max=50"`
 	TicketCount        int `json:"ticketCount" binding:"required,min=1,max=100"`
-	TicketsPerPage     int `json:"ticketsPerPage"` // Количество билетов на страницу, по умолчанию 1
+	TicketsPerPage     int `json:"ticketsPerPage"` // Number of tickets per page, default 1
 }
