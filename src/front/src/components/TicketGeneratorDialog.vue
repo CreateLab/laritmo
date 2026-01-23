@@ -161,7 +161,7 @@ const emit = defineEmits<{
   'update:visible': [value: boolean]
 }>()
 
-// Используем useToast - ToastService должен быть подключен в main.ts
+// Use useToast - ToastService must be connected in main.ts
 const toast = useToast()
 
 const visible = ref(props.visible)
@@ -198,7 +198,7 @@ const isFormValid = computed(() => {
 watch(() => props.visible, (val) => {
   visible.value = val
   if (!val) {
-    // Сброс состояния при закрытии
+    // Reset state on close
     error.value = ''
     generatedTicket.value = null
     enablePageBreaks.value = false
@@ -220,14 +220,14 @@ const handleSubmit = async () => {
 
   try {
     if (props.isAuthenticated) {
-      // Для авторизованных: генерируем и скачиваем документ
+      // For authenticated users: generate and download document
       const blob = await generateTicketsDocument(props.courseId, {
         questionsPerTicket: form.value.questionsPerTicket,
         ticketCount: form.value.ticketCount,
         ticketsPerPage: enablePageBreaks.value ? form.value.ticketsPerPage : 0,
       })
 
-      // Создаем имя файла из названия курса
+      // Create filename from course name
       const courseSlug = props.courseName
         .toLowerCase()
         .replace(/\s+/g, '_')
@@ -245,7 +245,7 @@ const handleSubmit = async () => {
 
       visible.value = false
     } else {
-      // Для неавторизованных: генерируем один билет и показываем его
+      // For unauthenticated users: generate one ticket and display it
       const ticket = await generateRandomTicket(
         props.courseId,
         form.value.questionsPerTicket

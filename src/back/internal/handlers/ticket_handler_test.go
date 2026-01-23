@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// MockTicketService - мок для TicketService
+// MockTicketService - mock for TicketService
 type MockTicketService struct {
 	mock.Mock
 }
@@ -38,7 +38,7 @@ func (m *MockTicketService) GenerateMultipleTickets(ctx context.Context, courseI
 	return args.Get(0).([]models.Ticket), args.Error(1)
 }
 
-// MockDocumentService - мок для DocumentService
+// MockDocumentService - mock for DocumentService
 type MockDocumentService struct {
 	mock.Mock
 }
@@ -48,7 +48,7 @@ func (m *MockDocumentService) GenerateTicketsDocument(tickets []models.Ticket, t
 	return args.Get(0).([]byte)
 }
 
-// MockCourseRepository - мок для CourseRepository
+// MockCourseRepository - mock for CourseRepository
 type MockCourseRepository struct {
 	mock.Mock
 }
@@ -231,23 +231,23 @@ func TestTicketHandler_GetRandomTicket(t *testing.T) {
 			mockDocumentService := new(MockDocumentService)
 			mockCourseRepo := new(MockCourseRepository)
 
-			// Настройка моков
+			// Setup mocks
 			if tt.courseID != "invalid" {
 				courseIDInt, _ := strconv.Atoi(tt.courseID)
 				mockCourseRepo.On("GetByID", courseIDInt).Return(tt.mockCourse, tt.mockCourseErr)
 
-				// Настраиваем мок для генерации билета только если курс существует и нет ошибок валидации
+				// Setup mock for ticket generation only if course exists and no validation errors
 				if tt.mockCourse != nil && tt.mockTicketErr == nil {
 					questionsCount := 10 // default
 					if tt.questions != "" {
 						questionsCount, _ = strconv.Atoi(tt.questions)
 					}
-					// Не настраиваем мок если questionsCount невалидный (валидация происходит до вызова сервиса)
+					// Don't setup mock if questionsCount is invalid (validation happens before service call)
 					if questionsCount >= 1 && questionsCount <= 50 {
 						mockTicketService.On("GenerateRandomTicket", mock.Anything, courseIDInt, questionsCount).Return(tt.mockTicket, tt.mockTicketErr)
 					}
 				} else if tt.mockCourse != nil && tt.mockTicketErr != nil {
-					// Если есть ошибка генерации билета, настраиваем мок
+					// If there's a ticket generation error, setup the mock
 					questionsCount := 10 // default
 					if tt.questions != "" {
 						questionsCount, _ = strconv.Atoi(tt.questions)
@@ -352,7 +352,7 @@ func TestTicketHandler_GenerateTicketsDocument(t *testing.T) {
 		{
 			name:           "invalid request body",
 			courseID:       "1",
-			requestBody:    models.TicketGenerationRequest{}, // пустой body
+			requestBody:    models.TicketGenerationRequest{}, // empty body
 			mockCourse:     &models.Course{ID: 1, Name: "Test"},
 			expectedStatus: http.StatusBadRequest,
 			validateResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
@@ -406,18 +406,18 @@ func TestTicketHandler_GenerateTicketsDocument(t *testing.T) {
 			mockDocumentService := new(MockDocumentService)
 			mockCourseRepo := new(MockCourseRepository)
 
-			// Настройка моков
+			// Setup mocks
 			if tt.courseID != "invalid" {
 				courseIDInt, _ := strconv.Atoi(tt.courseID)
 				mockCourseRepo.On("GetByID", courseIDInt).Return(tt.mockCourse, tt.mockCourseErr)
 
-				// Настраиваем мок для генерации билетов только если курс существует и body валидный
+				// Setup mock for ticket generation only if course exists and body is valid
 				if tt.mockCourse != nil {
-					// Проверяем валидность body (если requestBody пустой, это ошибка валидации)
+					// Check body validity (if requestBody is empty, it's a validation error)
 					if tt.requestBody.QuestionsPerTicket > 0 && tt.requestBody.TicketCount > 0 {
 						mockTicketService.On("GenerateMultipleTickets", mock.Anything, courseIDInt, tt.requestBody.TicketCount, tt.requestBody.QuestionsPerTicket).Return(tt.mockTickets, tt.mockTicketsErr)
 						if len(tt.mockTickets) > 0 && tt.mockTicketsErr == nil {
-							// ticketsPerPage передаётся как есть (0 = все подряд)
+							// ticketsPerPage passed as is (0 = all in sequence)
 							mockDocumentService.On("GenerateTicketsDocument", tt.mockTickets, tt.requestBody.TicketsPerPage).Return(tt.mockDocument)
 						}
 					}

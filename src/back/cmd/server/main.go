@@ -26,7 +26,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// nrApp - глобальный экземпляр New Relic Application для APM мониторинга
+// nrApp - global New Relic Application instance for APM monitoring
 var nrApp *newrelic.Application
 
 // @title           Laritmo API
@@ -70,7 +70,7 @@ func main() {
 
 	slog.InfoContext(ctx, "Config loaded successfully")
 
-	// Инициализация New Relic APM
+	// Initialize New Relic APM
 	if cfg.NewRelic.Enabled {
 		nrApp, err = newrelic.NewApplication(
 			newrelic.ConfigAppName(cfg.NewRelic.AppName),
@@ -110,7 +110,7 @@ func main() {
 	gradeSheetHandler := handlers.NewGradeSheetHandler(gradeSheetRepo, logger)
 	examQuestionHandler := handlers.NewExamQuestionHandler(examQuestionRepo, logger)
 
-	ticketService := services.NewTicketService(examQuestionRepo) // examQuestionRepo реализует ExamQuestionRepositoryInterface
+	ticketService := services.NewTicketService(examQuestionRepo) // examQuestionRepo implements ExamQuestionRepositoryInterface
 	documentService := services.NewDocumentService()
 	ticketHandler := handlers.NewTicketHandler(ticketService, documentService, courseRepo, logger)
 
@@ -122,7 +122,7 @@ func main() {
 	gin.SetMode(cfg.Server.Mode)
 	r := gin.Default()
 
-	// New Relic middleware должен быть первым для корректного трейсинга
+	// New Relic middleware must be first for proper tracing
 	if nrApp != nil {
 		r.Use(nrgin.Middleware(nrApp))
 		slog.InfoContext(ctx, "✅ New Relic Gin middleware enabled")
@@ -193,7 +193,7 @@ func main() {
 		admin.POST("/courses/:id/tickets/generate", ticketHandler.GenerateTicketsDocument)
 	}
 
-	// Owner only - управление пользователями
+	// Owner only - user management
 	owner := r.Group("/api/admin/users")
 	owner.Use(middleware.AuthMiddleware(jwtManager))
 	owner.Use(middleware.OwnerOnly())
@@ -208,7 +208,7 @@ func main() {
 		owner.PUT("/:id/password", userHandler.ResetPassword)
 	}
 
-	// Auth routes - для аутентифицированных пользователей
+	// Auth routes - for authenticated users
 	authGroup := r.Group("/api/auth")
 	authGroup.Use(middleware.AuthMiddleware(jwtManager))
 	{

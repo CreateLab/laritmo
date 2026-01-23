@@ -18,7 +18,7 @@ export const useThemeStore = defineStore('theme', () => {
     })
 
     const applyTheme = (theme: 'light' | 'dark') => {
-        console.log('Applying theme:', theme) // Для отладки
+        console.log('Applying theme:', theme) // For debugging
         const root = document.documentElement
         if (theme === 'dark') {
             root.classList.add('dark')
@@ -31,7 +31,7 @@ export const useThemeStore = defineStore('theme', () => {
         currentTheme.value = theme
         localStorage.setItem('laritmo-theme', theme)
         
-        // Явно вычисляем эффективную тему для надежности
+        // Explicitly compute effective theme for reliability
         let effective: 'light' | 'dark'
         if (theme === 'system') {
             effective = window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -45,15 +45,15 @@ export const useThemeStore = defineStore('theme', () => {
     }
 
     const toggleTheme = () => {
-        // Переключаем на основе текущей эффективной темы
+        // Toggle based on current effective theme
         const currentEffective = effectiveTheme.value
         const newTheme = currentEffective === 'dark' ? 'light' : 'dark'
         setTheme(newTheme)
     }
 
     const initTheme = () => {
-        // Применяем текущую тему
-        // Явно вычисляем эффективную тему для надежности
+        // Apply current theme
+        // Explicitly compute effective theme for reliability
         let effective: 'light' | 'dark'
         if (currentTheme.value === 'system') {
             effective = window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -64,7 +64,7 @@ export const useThemeStore = defineStore('theme', () => {
         }
         applyTheme(effective)
 
-        // Слушаем изменения системной темы, если выбрана 'system'
+        // Listen for system theme changes if 'system' is selected
         if (currentTheme.value === 'system') {
             const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
             const handleChange = (e: MediaQueryListEvent) => {
@@ -73,11 +73,11 @@ export const useThemeStore = defineStore('theme', () => {
                 }
             }
             
-            // Современный способ
+            // Modern approach
             if (mediaQuery.addEventListener) {
                 mediaQuery.addEventListener('change', handleChange)
             } else {
-                // Fallback для старых браузеров
+                // Fallback for older browsers
                 mediaQuery.addListener(handleChange)
             }
         }

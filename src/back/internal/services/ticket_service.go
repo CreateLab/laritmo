@@ -9,7 +9,7 @@ import (
 	"github.com/CreateLab/laritmo/internal/models"
 )
 
-// ExamQuestionRepositoryInterface - интерфейс для работы с экзаменационными вопросами
+// ExamQuestionRepositoryInterface - interface for working with exam questions
 type ExamQuestionRepositoryInterface interface {
 	GetByCourseID(courseID int) ([]models.ExamQuestion, error)
 }
@@ -24,13 +24,13 @@ func NewTicketService(examRepo ExamQuestionRepositoryInterface) *TicketService {
 	}
 }
 
-// GenerateRandomTicket генерирует один случайный билет из вопросов курса
+// GenerateRandomTicket generates a single random ticket from course questions
 func (s *TicketService) GenerateRandomTicket(ctx context.Context, courseID int, questionsCount int) (*models.Ticket, error) {
 	if questionsCount < 1 || questionsCount > 50 {
 		return nil, errors.New("questions count must be between 1 and 50")
 	}
 
-	// Получаем все вопросы курса
+	// Get all course questions
 	allQuestions, err := s.examRepo.GetByCourseID(courseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get exam questions: %w", err)
@@ -40,16 +40,16 @@ func (s *TicketService) GenerateRandomTicket(ctx context.Context, courseID int, 
 		return nil, fmt.Errorf("not enough questions: have %d, need %d", len(allQuestions), questionsCount)
 	}
 
-	// Группируем вопросы по разделам
+	// Group questions by section
 	questionsBySection := make(map[string][]models.ExamQuestion)
 	for _, q := range allQuestions {
 		questionsBySection[q.Section] = append(questionsBySection[q.Section], q)
 	}
 
-	// Выбираем вопросы согласно алгоритму
+	// Select questions according to the algorithm
 	selectedQuestions := s.selectQuestions(questionsBySection, questionsCount)
 
-	// Преобразуем в формат Question
+	// Convert to Question format
 	questions := make([]models.Question, len(selectedQuestions))
 	for i, q := range selectedQuestions {
 		questions[i] = models.Question{
@@ -65,7 +65,7 @@ func (s *TicketService) GenerateRandomTicket(ctx context.Context, courseID int, 
 	}, nil
 }
 
-// GenerateMultipleTickets генерирует несколько билетов с минимизацией пересечений
+// GenerateMultipleTickets generates multiple tickets with minimized question overlap
 func (s *TicketService) GenerateMultipleTickets(ctx context.Context, courseID int, ticketCount, questionsPerTicket int) ([]models.Ticket, error) {
 	if ticketCount < 1 || ticketCount > 100 {
 		return nil, errors.New("ticket count must be between 1 and 100")
@@ -74,24 +74,24 @@ func (s *TicketService) GenerateMultipleTickets(ctx context.Context, courseID in
 		return nil, errors.New("questions per ticket must be between 1 and 50")
 	}
 
-	// Получаем все вопросы курса
+	// Get all course questions
 	allQuestions, err := s.examRepo.GetByCourseID(courseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get exam questions: %w", err)
 	}
 
-	// Проверяем достаточность вопросов
+	// Check if there are enough questions
 	if len(allQuestions) < questionsPerTicket {
 		return nil, fmt.Errorf("not enough questions: have %d, need at least %d", len(allQuestions), questionsPerTicket)
 	}
 
-	// Группируем вопросы по разделам
+	// Group questions by section
 	questionsBySection := make(map[string][]models.ExamQuestion)
 	for _, q := range allQuestions {
 		questionsBySection[q.Section] = append(questionsBySection[q.Section], q)
 	}
 
-	// Генерируем билеты с отслеживанием использованных вопросов
+	// Generate tickets with tracking of used questions
 	tickets := make([]models.Ticket, ticketCount)
 	usedQuestions := make(map[int]int) // question ID -> count of usage
 
@@ -117,7 +117,7 @@ func (s *TicketService) GenerateMultipleTickets(ctx context.Context, courseID in
 	return tickets, nil
 }
 
-// selectQuestions выбирает вопросы согласно алгоритму распределения
+// selectQuestions selects questions according to the distribution algorithm
 func (s *TicketService) selectQuestions(questionsBySection map[string][]models.ExamQuestion, questionsCount int) []models.ExamQuestion {
 	var selected []models.ExamQuestion
 	sections := make([]string, 0, len(questionsBySection))
@@ -125,9 +125,9 @@ func (s *TicketService) selectQuestions(questionsBySection map[string][]models.E
 		sections = append(sections, section)
 	}
 
-	// Если количество вопросов >= количества разделов, берем по одному из каждого раздела
+	// If questions count >= sections count, take one from each section
 	if questionsCount >= len(sections) {
-		// Берем по одному вопросу из каждого раздела
+		// Take one question from each section
 		for _, section := range sections {
 			sectionQuestions := questionsBySection[section]
 			if len(sectionQuestions) > 0 {
@@ -136,14 +136,14 @@ func (s *TicketService) selectQuestions(questionsBySection map[string][]models.E
 			}
 		}
 
-		// Остальное заполняем случайными вопросами
+		// Fill the rest with random questions
 		remaining := questionsCount - len(selected)
 		if remaining > 0 {
 			allQuestions := s.flattenQuestions(questionsBySection)
 			selected = append(selected, s.selectRandomQuestions(allQuestions, remaining, selected)...)
 		}
 	} else {
-		// Выбираем случайные разделы
+		// Select random sections
 		selectedSections := s.selectRandomSections(sections, questionsCount)
 		for _, section := range selectedSections {
 			sectionQuestions := questionsBySection[section]
@@ -154,13 +154,13 @@ func (s *TicketService) selectQuestions(questionsBySection map[string][]models.E
 		}
 	}
 
-	// Перемешиваем порядок вопросов
+	// Shuffle question order
 	s.shuffleQuestions(selected)
 
 	return selected
 }
 
-// selectQuestionsWithTracking выбирает вопросы с учетом уже использованных
+// selectQuestionsWithTracking selects questions considering already used ones
 func (s *TicketService) selectQuestionsWithTracking(
 	questionsBySection map[string][]models.ExamQuestion,
 	questionsCount int,
@@ -173,11 +173,11 @@ func (s *TicketService) selectQuestionsWithTracking(
 		sections = append(sections, section)
 	}
 
-	// Создаем список доступных вопросов (приоритет тем, которые использовались меньше)
+	// Create list of available questions (priority to less used ones)
 	availableQuestions := s.getAvailableQuestions(questionsBySection, usedQuestions)
 
 	if questionsCount >= len(sections) {
-		// Берем по одному из каждого раздела (приоритет менее использованным)
+		// Take one from each section (priority to least used)
 		for _, section := range sections {
 			sectionQuestions := questionsBySection[section]
 			bestQuestion := s.findLeastUsedQuestion(sectionQuestions, usedQuestions)
@@ -186,14 +186,14 @@ func (s *TicketService) selectQuestionsWithTracking(
 			}
 		}
 
-		// Остальное заполняем наименее использованными вопросами
+		// Fill the rest with least used questions
 		remaining := questionsCount - len(selected)
 		if remaining > 0 {
 			additional := s.selectLeastUsedQuestions(availableQuestions, remaining, selected, usedQuestions)
 			selected = append(selected, additional...)
 		}
 	} else {
-		// Выбираем случайные разделы, но внутри них берем наименее использованные вопросы
+		// Select random sections, but within them take least used questions
 		selectedSections := s.selectRandomSections(sections, questionsCount)
 		for _, section := range selectedSections {
 			sectionQuestions := questionsBySection[section]
@@ -204,13 +204,13 @@ func (s *TicketService) selectQuestionsWithTracking(
 		}
 	}
 
-	// Перемешиваем порядок вопросов
+	// Shuffle question order
 	s.shuffleQuestions(selected)
 
 	return selected
 }
 
-// getAvailableQuestions возвращает все доступные вопросы с учетом использованных
+// getAvailableQuestions returns all available questions considering used ones
 func (s *TicketService) getAvailableQuestions(
 	questionsBySection map[string][]models.ExamQuestion,
 	usedQuestions map[int]int,
@@ -222,7 +222,7 @@ func (s *TicketService) getAvailableQuestions(
 	return all
 }
 
-// findLeastUsedQuestion находит наименее использованный вопрос в секции
+// findLeastUsedQuestion finds the least used question in a section
 func (s *TicketService) findLeastUsedQuestion(questions []models.ExamQuestion, usedQuestions map[int]int) *models.ExamQuestion {
 	if len(questions) == 0 {
 		return nil
@@ -242,20 +242,20 @@ func (s *TicketService) findLeastUsedQuestion(questions []models.ExamQuestion, u
 	return bestQuestion
 }
 
-// selectLeastUsedQuestions выбирает наименее использованные вопросы
+// selectLeastUsedQuestions selects the least used questions
 func (s *TicketService) selectLeastUsedQuestions(
 	availableQuestions []models.ExamQuestion,
 	count int,
 	alreadySelected []models.ExamQuestion,
 	usedQuestions map[int]int,
 ) []models.ExamQuestion {
-	// Создаем множество уже выбранных ID
+	// Create set of already selected IDs
 	selectedIDs := make(map[int]bool)
 	for _, q := range alreadySelected {
 		selectedIDs[q.ID] = true
 	}
 
-	// Фильтруем доступные вопросы (исключаем уже выбранные)
+	// Filter available questions (exclude already selected)
 	filtered := make([]models.ExamQuestion, 0)
 	for _, q := range availableQuestions {
 		if !selectedIDs[q.ID] {
@@ -263,7 +263,7 @@ func (s *TicketService) selectLeastUsedQuestions(
 		}
 	}
 
-	// Сортируем по количеству использований (ascending)
+	// Sort by usage count (ascending)
 	sorted := make([]models.ExamQuestion, len(filtered))
 	copy(sorted, filtered)
 	for i := 0; i < len(sorted)-1; i++ {
@@ -274,7 +274,7 @@ func (s *TicketService) selectLeastUsedQuestions(
 		}
 	}
 
-	// Берем первые count вопросов
+	// Take first count questions
 	resultCount := count
 	if resultCount > len(sorted) {
 		resultCount = len(sorted)
@@ -283,7 +283,7 @@ func (s *TicketService) selectLeastUsedQuestions(
 	return sorted[:resultCount]
 }
 
-// selectRandomSections выбирает случайные разделы
+// selectRandomSections selects random sections
 func (s *TicketService) selectRandomSections(sections []string, count int) []string {
 	if count >= len(sections) {
 		return sections
@@ -298,7 +298,7 @@ func (s *TicketService) selectRandomSections(sections []string, count int) []str
 	return selected
 }
 
-// selectRandomQuestions выбирает случайные вопросы, исключая уже выбранные
+// selectRandomQuestions selects random questions, excluding already selected
 func (s *TicketService) selectRandomQuestions(allQuestions []models.ExamQuestion, count int, exclude []models.ExamQuestion) []models.ExamQuestion {
 	excludeIDs := make(map[int]bool)
 	for _, q := range exclude {
@@ -325,7 +325,7 @@ func (s *TicketService) selectRandomQuestions(allQuestions []models.ExamQuestion
 	return selected
 }
 
-// flattenQuestions преобразует map в плоский список
+// flattenQuestions converts map to flat list
 func (s *TicketService) flattenQuestions(questionsBySection map[string][]models.ExamQuestion) []models.ExamQuestion {
 	var all []models.ExamQuestion
 	for _, questions := range questionsBySection {
@@ -334,7 +334,7 @@ func (s *TicketService) flattenQuestions(questionsBySection map[string][]models.
 	return all
 }
 
-// shuffleQuestions перемешивает вопросы случайным образом
+// shuffleQuestions randomly shuffles questions
 func (s *TicketService) shuffleQuestions(questions []models.ExamQuestion) {
 	for i := len(questions) - 1; i > 0; i-- {
 		j := rand.Intn(i + 1)

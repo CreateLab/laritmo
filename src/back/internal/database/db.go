@@ -10,7 +10,7 @@ import (
 )
 
 func Connect(dsn string) (*sql.DB, error) {
-	// Используем nrmysql драйвер для автоматического трейсинга SQL-запросов в New Relic
+	// Use nrmysql driver for automatic SQL query tracing in New Relic
 	db, err := sql.Open("nrmysql", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)

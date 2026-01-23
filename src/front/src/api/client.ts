@@ -11,7 +11,7 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
     (config) => {
-        // Добавляем JWT токен из localStorage, если он есть
+        // Add JWT token from localStorage if available
         const token = localStorage.getItem('token')
         if (token) {
             config.headers.Authorization = `Bearer ${token}`
@@ -29,15 +29,15 @@ apiClient.interceptors.response.use(
     (error) => {
         console.error('API Error:', error.response?.status, error.message)
 
-        // При 401 (Unauthorized) — автоматический логаут
+        // On 401 (Unauthorized) - automatic logout
         if (error.response?.status === 401) {
             const token = localStorage.getItem('token')
-            // Логаут только если был токен (т.е. пользователь был залогинен)
+            // Logout only if token existed (i.e., user was logged in)
             if (token) {
                 console.warn('Token expired or invalid, logging out...')
                 localStorage.removeItem('token')
                 localStorage.removeItem('user')
-                // Редирект на главную с перезагрузкой для очистки состояния
+                // Redirect to home with reload to clear state
                 window.location.href = '/'
             }
         }

@@ -56,6 +56,6 @@ const handleLogout = () => {
 }
 
 const handlePasswordChanged = () => {
-  // Пароль успешно изменён
+  // Password changed successfully
 }
 </script>
