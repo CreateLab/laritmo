@@ -116,6 +116,9 @@ func main() {
 
 	authHandler := handlers.NewAuthHandler(userRepo, jwtManager, logger)
 
+	userService := services.NewUserService(userRepo)
+	userHandler := handlers.NewUserHandler(userService, logger)
+
 	gin.SetMode(cfg.Server.Mode)
 	r := gin.Default()
 
@@ -188,6 +191,28 @@ func main() {
 		admin.DELETE("/exam-questions/:id", examQuestionHandler.Delete)
 
 		admin.POST("/courses/:id/tickets/generate", ticketHandler.GenerateTicketsDocument)
+	}
+
+	// Owner only - управление пользователями
+	owner := r.Group("/api/admin/users")
+	owner.Use(middleware.AuthMiddleware(jwtManager))
+	owner.Use(middleware.OwnerOnly())
+	{
+		owner.GET("", userHandler.GetAll)
+		owner.GET("/:id", userHandler.GetByID)
+		owner.POST("", userHandler.Create)
+		owner.PUT("/:id", userHandler.Update)
+		owner.DELETE("/:id", userHandler.Delete)
+		owner.PUT("/:id/deactivate", userHandler.Deactivate)
+		owner.PUT("/:id/activate", userHandler.Activate)
+		owner.PUT("/:id/password", userHandler.ResetPassword)
+	}
+
+	// Auth routes - для аутентифицированных пользователей
+	authGroup := r.Group("/api/auth")
+	authGroup.Use(middleware.AuthMiddleware(jwtManager))
+	{
+		authGroup.PUT("/me/password", userHandler.ChangePassword)
 	}
 
 	r.Static("/assets", "./web/assets")
