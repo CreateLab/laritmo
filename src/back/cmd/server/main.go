@@ -182,6 +182,7 @@ func main() {
 
 		admin.POST("/exam-questions", examQuestionHandler.Create)
 		admin.POST("/exam-questions/bulk", examQuestionHandler.BulkCreateJSON)
+		admin.POST("/exam-questions/bulk-delete", examQuestionHandler.BulkDelete)
 		admin.POST("/exam-questions/upload", examQuestionHandler.BulkUploadFile)
 		admin.PUT("/exam-questions/:id", examQuestionHandler.Update)
 		admin.DELETE("/exam-questions/:id", examQuestionHandler.Delete)

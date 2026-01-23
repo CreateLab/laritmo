@@ -20,7 +20,7 @@ auth:
   rate_limit_burst: 5      # Burst size (allows burst of requests)
 
 newrelic:
-  enabled: ${NEWRELIC_ENABLED:false}
+  enabled: false
   app_name: "Laritmo-Forest-Academy"
-  license_key: ${NEWRELIC_LICENSE_KEY}
+  license_key: ""
   log_level: "info"

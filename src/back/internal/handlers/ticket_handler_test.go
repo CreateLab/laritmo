@@ -43,8 +43,8 @@ type MockDocumentService struct {
 	mock.Mock
 }
 
-func (m *MockDocumentService) GenerateTicketsDocument(tickets []models.Ticket) []byte {
-	args := m.Called(tickets)
+func (m *MockDocumentService) GenerateTicketsDocument(tickets []models.Ticket, ticketsPerPage int) []byte {
+	args := m.Called(tickets, ticketsPerPage)
 	return args.Get(0).([]byte)
 }
 
@@ -417,7 +417,8 @@ func TestTicketHandler_GenerateTicketsDocument(t *testing.T) {
 					if tt.requestBody.QuestionsPerTicket > 0 && tt.requestBody.TicketCount > 0 {
 						mockTicketService.On("GenerateMultipleTickets", mock.Anything, courseIDInt, tt.requestBody.TicketCount, tt.requestBody.QuestionsPerTicket).Return(tt.mockTickets, tt.mockTicketsErr)
 						if len(tt.mockTickets) > 0 && tt.mockTicketsErr == nil {
-							mockDocumentService.On("GenerateTicketsDocument", tt.mockTickets).Return(tt.mockDocument)
+							// ticketsPerPage передаётся как есть (0 = все подряд)
+							mockDocumentService.On("GenerateTicketsDocument", tt.mockTickets, tt.requestBody.TicketsPerPage).Return(tt.mockDocument)
 						}
 					}
 				}

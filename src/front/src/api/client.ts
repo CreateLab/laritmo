@@ -28,6 +28,20 @@ apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
         console.error('API Error:', error.response?.status, error.message)
+
+        // При 401 (Unauthorized) — автоматический логаут
+        if (error.response?.status === 401) {
+            const token = localStorage.getItem('token')
+            // Логаут только если был токен (т.е. пользователь был залогинен)
+            if (token) {
+                console.warn('Token expired or invalid, logging out...')
+                localStorage.removeItem('token')
+                localStorage.removeItem('user')
+                // Редирект на главную с перезагрузкой для очистки состояния
+                window.location.href = '/'
+            }
+        }
+
         return Promise.reject(error)
     }
 )

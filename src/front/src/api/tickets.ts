@@ -14,6 +14,7 @@ export interface Question {
 export interface TicketGenerationRequest {
   questionsPerTicket: number
   ticketCount: number
+  ticketsPerPage?: number // Количество билетов на страницу (по умолчанию 1)
 }
 
 interface TicketResponse {

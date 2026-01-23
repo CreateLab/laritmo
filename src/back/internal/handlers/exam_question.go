@@ -119,6 +119,10 @@ type BulkCreateJSONRequest struct {
 	} `json:"questions" binding:"required"`
 }
 
+type BulkDeleteRequest struct {
+	IDs []int `json:"ids" binding:"required"`
+}
+
 // Create godoc
 // @Summary      Create exam question
 // @Description  Create a new exam question (admin only)
@@ -232,6 +236,44 @@ func (h *ExamQuestionHandler) Delete(c *gin.Context) {
 
 	h.logger.InfoContext(c.Request.Context(), "Exam question deleted", "id", id)
 	c.JSON(http.StatusOK, gin.H{"message": "Exam question deleted"})
+}
+
+// BulkDelete godoc
+// @Summary      Bulk delete exam questions
+// @Description  Delete multiple exam questions by IDs (admin only)
+// @Tags         admin-exam-questions
+// @Accept       json
+// @Produce      json
+// @Param        ids   body      BulkDeleteRequest  true  "Question IDs to delete"
+// @Success      200   {object}  map[string]string
+// @Failure      400   {object}  map[string]string
+// @Failure      401   {object}  map[string]string
+// @Failure      403   {object}  map[string]string
+// @Failure      500   {object}  map[string]string
+// @Security     BearerAuth
+// @Router       /api/admin/exam-questions/bulk-delete [post]
+func (h *ExamQuestionHandler) BulkDelete(c *gin.Context) {
+	var req BulkDeleteRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		h.logger.ErrorContext(c.Request.Context(), "Validation error", "error", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		return
+	}
+
+	if len(req.IDs) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "IDs list is empty"})
+		return
+	}
+
+	err := h.repo.BulkDelete(req.IDs)
+	if err != nil {
+		h.logger.ErrorContext(c.Request.Context(), "Failed to bulk delete exam questions", "error", err, "count", len(req.IDs))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete exam questions"})
+		return
+	}
+
+	h.logger.InfoContext(c.Request.Context(), "Exam questions bulk deleted", "count", len(req.IDs))
+	c.JSON(http.StatusOK, gin.H{"message": "Exam questions deleted", "count": len(req.IDs)})
 }
 
 // BulkCreateJSON godoc

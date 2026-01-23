@@ -153,7 +153,7 @@ func TestDocumentService_GenerateTicketsDocument(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			output := service.GenerateTicketsDocument(tt.tickets)
+			output := service.GenerateTicketsDocument(tt.tickets, 1)
 			tt.validateOutput(t, output)
 		})
 	}
@@ -170,7 +170,7 @@ func TestDocumentService_FormatStructure(t *testing.T) {
 		},
 	}
 
-	output := service.GenerateTicketsDocument([]models.Ticket{ticket})
+	output := service.GenerateTicketsDocument([]models.Ticket{ticket}, 1)
 	text := string(output)
 	lines := strings.Split(text, "\n")
 
@@ -185,4 +185,58 @@ func TestDocumentService_FormatStructure(t *testing.T) {
 	assert.True(t, lines[1] == "", "line 1 should be empty")
 	assert.Contains(t, lines[2], "1. Question 1")
 	assert.Contains(t, lines[3], "2. Question 2")
+}
+
+func TestDocumentService_PageBreaks(t *testing.T) {
+	service := NewDocumentService()
+
+	tickets := []models.Ticket{
+		{Number: 1, Questions: []models.Question{{Number: 1, Section: "A", Question: "Q1"}}},
+		{Number: 2, Questions: []models.Question{{Number: 2, Section: "B", Question: "Q2"}}},
+		{Number: 3, Questions: []models.Question{{Number: 3, Section: "C", Question: "Q3"}}},
+		{Number: 4, Questions: []models.Question{{Number: 4, Section: "D", Question: "Q4"}}},
+	}
+
+	t.Run("all in a row (ticketsPerPage=0)", func(t *testing.T) {
+		output := service.GenerateTicketsDocument(tickets, 0)
+		text := string(output)
+		// Не должно быть разрывов страницы и разделителей
+		formFeedCount := strings.Count(text, "\f")
+		assert.Equal(t, 0, formFeedCount)
+		assert.NotContains(t, text, "═")
+		assert.NotContains(t, text, "----")
+		// Должны быть все билеты
+		assert.Contains(t, text, "Билет № 1")
+		assert.Contains(t, text, "Билет № 4")
+	})
+
+	t.Run("1 ticket per page", func(t *testing.T) {
+		output := service.GenerateTicketsDocument(tickets, 1)
+		text := string(output)
+		// Должно быть 3 разрыва страницы (после билетов 1, 2, 3)
+		formFeedCount := strings.Count(text, "\f")
+		assert.Equal(t, 3, formFeedCount)
+		// Должны быть визуальные разделители
+		assert.Contains(t, text, "═")
+	})
+
+	t.Run("2 tickets per page", func(t *testing.T) {
+		output := service.GenerateTicketsDocument(tickets, 2)
+		text := string(output)
+		// Должно быть 1 разрыв страницы (после билета 2)
+		formFeedCount := strings.Count(text, "\f")
+		assert.Equal(t, 1, formFeedCount)
+		// Должны быть разделители между билетами на одной странице
+		assert.Contains(t, text, "----")
+	})
+
+	t.Run("all tickets on one page (ticketsPerPage > count)", func(t *testing.T) {
+		output := service.GenerateTicketsDocument(tickets, 10)
+		text := string(output)
+		// Не должно быть разрывов страницы
+		formFeedCount := strings.Count(text, "\f")
+		assert.Equal(t, 0, formFeedCount)
+		// Но должны быть разделители между билетами
+		assert.Contains(t, text, "----")
+	})
 }

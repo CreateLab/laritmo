@@ -165,7 +165,7 @@
 
         <TabPanel header="📝 Вопросы к экзамену" value="exam">
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-            <div v-if="authStore.isAdmin" class="flex gap-4">
+            <div v-if="authStore.isAdmin" class="flex gap-2 flex-wrap">
               <button
                   @click="addExamQuestion"
                   class="px-4 py-2 bg-forest-green dark:bg-forest-green-dark text-white rounded-lg hover:bg-forest-dark dark:hover:bg-forest-green transition-colors duration-300"
@@ -178,6 +178,16 @@
               >
                 📤 Массовая загрузка
               </button>
+              <button
+                  v-if="examQuestions.length > 0"
+                  @click="toggleSelectionMode"
+                  :class="selectionMode
+                    ? 'bg-gray-500 dark:bg-gray-600 hover:bg-gray-600 dark:hover:bg-gray-700'
+                    : 'bg-orange-500 dark:bg-orange-600 hover:bg-orange-600 dark:hover:bg-orange-700'"
+                  class="px-4 py-2 text-white rounded-lg transition-colors duration-300"
+              >
+                {{ selectionMode ? '✕ Отмена' : '☑️ Выбрать для удаления' }}
+              </button>
             </div>
             <button
                 @click="showTicketGenerator = true"
@@ -185,6 +195,28 @@
             >
               🎫 Сгенерировать билет
             </button>
+          </div>
+
+          <!-- Панель действий при выборе -->
+          <div v-if="selectionMode && authStore.isAdmin" class="mb-4 p-4 bg-gray-100 dark:bg-dark-surface rounded-lg border-2 border-orange-300 dark:border-orange-600 transition-colors duration-300">
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="text-gray-700 dark:text-dark-text font-medium">
+                Выбрано: {{ selectedQuestions.size }} из {{ examQuestions.length }}
+              </span>
+              <button
+                  @click="allSelected ? deselectAll() : selectAll()"
+                  class="px-3 py-1 bg-gray-200 dark:bg-dark-border text-gray-700 dark:text-dark-text rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-300"
+              >
+                {{ allSelected ? 'Снять все' : 'Выбрать все' }}
+              </button>
+              <button
+                  v-if="selectedQuestions.size > 0"
+                  @click="bulkDeleteQuestions"
+                  class="px-4 py-1 bg-red-500 dark:bg-red-600 text-white rounded hover:bg-red-600 dark:hover:bg-red-700 transition-colors duration-300"
+              >
+                🗑️ Удалить выбранные ({{ selectedQuestions.size }})
+              </button>
+            </div>
           </div>
 
           <div v-if="examQuestionsLoading" class="text-center py-8">
@@ -202,14 +234,26 @@
                 <div
                     v-for="q in group.questions"
                     :key="q.id"
-                    class="bg-white dark:bg-dark-surface rounded-lg shadow dark:shadow-lg p-4 flex items-start justify-between transition-all duration-300"
+                    :class="[
+                      'bg-white dark:bg-dark-surface rounded-lg shadow dark:shadow-lg p-4 flex items-start justify-between transition-all duration-300',
+                      selectionMode && selectedQuestions.has(q.id) ? 'ring-2 ring-orange-400 dark:ring-orange-500' : ''
+                    ]"
                 >
-                  <div class="flex gap-3 flex-1">
+                  <div class="flex gap-3 flex-1 items-start">
+                    <!-- Чекбокс в режиме выбора -->
+                    <label v-if="selectionMode && authStore.isAdmin" class="flex items-center cursor-pointer mt-1">
+                      <input
+                          type="checkbox"
+                          :checked="selectedQuestions.has(q.id)"
+                          @change="toggleQuestion(q.id)"
+                          class="w-5 h-5 rounded border-gray-300 dark:border-dark-border text-orange-500 focus:ring-orange-500 cursor-pointer"
+                      />
+                    </label>
                     <span class="font-semibold text-forest-green dark:text-forest-green-dark transition-colors duration-300">{{ q.number }}.</span>
                     <p class="text-gray-700 dark:text-dark-text-secondary transition-colors duration-300">{{ q.question }}</p>
                   </div>
 
-                  <div v-if="authStore.isAdmin" class="flex gap-2 ml-4">
+                  <div v-if="authStore.isAdmin && !selectionMode" class="flex gap-2 ml-4">
                     <button
                         @click="editExamQuestion(q)"
                         class="px-3 py-1 text-sm bg-gray-100 dark:bg-dark-surface hover:bg-gray-200 dark:hover:bg-dark-border rounded transition-colors duration-300 text-gray-700 dark:text-dark-text"
@@ -335,6 +379,9 @@ const showBulkUpload = ref(false)
 const showTicketGenerator = ref(false)
 const editingExamQuestion = ref<ExamQuestion | null>(null)
 
+const selectedQuestions = ref<Set<number>>(new Set())
+const selectionMode = ref(false)
+
 const editCourse = () => {
   showEditDialog.value = true
 }
@@ -448,6 +495,11 @@ const groupedQuestions = computed(() => {
   return groups
 })
 
+const allSelected = computed(() =>
+  examQuestions.value.length > 0 &&
+  selectedQuestions.value.size === examQuestions.value.length
+)
+
 const addExamQuestion = () => {
   editingExamQuestion.value = null
   showExamQuestionDialog.value = true
@@ -466,6 +518,44 @@ const deleteExamQuestion = async (id: number) => {
   } catch (error) {
     console.error('Failed to delete question:', error)
     alert('Ошибка удаления вопроса')
+  }
+}
+
+const toggleSelectionMode = () => {
+  selectionMode.value = !selectionMode.value
+  if (!selectionMode.value) {
+    selectedQuestions.value.clear()
+  }
+}
+
+const toggleQuestion = (id: number) => {
+  if (selectedQuestions.value.has(id)) {
+    selectedQuestions.value.delete(id)
+  } else {
+    selectedQuestions.value.add(id)
+  }
+}
+
+const selectAll = () => {
+  examQuestions.value.forEach(q => selectedQuestions.value.add(q.id))
+}
+
+const deselectAll = () => {
+  selectedQuestions.value.clear()
+}
+
+const bulkDeleteQuestions = async () => {
+  if (selectedQuestions.value.size === 0) return
+  if (!confirm(`Удалить ${selectedQuestions.value.size} вопросов? Это действие нельзя отменить.`)) return
+
+  try {
+    await examQuestionsApi.bulkDelete([...selectedQuestions.value])
+    selectedQuestions.value.clear()
+    selectionMode.value = false
+    await loadExamQuestions()
+  } catch (error) {
+    console.error('Failed to bulk delete questions:', error)
+    alert('Ошибка удаления вопросов')
   }
 }
 

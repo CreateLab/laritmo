@@ -78,6 +78,37 @@
         </p>
       </div>
 
+      <!-- Разбивка по страницам (только для авторизованных) -->
+      <div v-if="isAuthenticated" class="space-y-3">
+        <div class="flex items-center gap-3">
+          <Checkbox
+            v-model="enablePageBreaks"
+            :binary="true"
+            :disabled="loading"
+            inputId="pageBreaks"
+          />
+          <label
+            for="pageBreaks"
+            class="text-sm font-medium text-gray-700 dark:text-dark-text-secondary cursor-pointer transition-colors duration-300"
+          >
+            Разбивка по страницам (для печати)
+          </label>
+        </div>
+
+        <div v-if="enablePageBreaks" class="pl-7">
+          <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-2 transition-colors duration-300">
+            Билетов на страницу
+          </label>
+          <InputNumber
+            v-model="form.ticketsPerPage"
+            :min="1"
+            :max="10"
+            :disabled="loading"
+            class="w-full"
+          />
+        </div>
+      </div>
+
       <div v-if="error" class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4 transition-colors duration-300">
         <p class="text-red-800 dark:text-red-300 text-sm transition-colors duration-300">{{ error }}</p>
       </div>
@@ -107,6 +138,7 @@ import { ref, computed, watch } from 'vue'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
 import InputNumber from 'primevue/inputnumber'
+import Checkbox from 'primevue/checkbox'
 import ProgressSpinner from 'primevue/progressspinner'
 import { useToast } from 'primevue/usetoast'
 import {
@@ -136,20 +168,26 @@ const visible = ref(props.visible)
 const loading = ref(false)
 const error = ref('')
 const generatedTicket = ref<Ticket | null>(null)
+const enablePageBreaks = ref(false)
 
 const form = ref({
   questionsPerTicket: 10,
   ticketCount: 20,
+  ticketsPerPage: 1,
 })
 
 const isFormValid = computed(() => {
   if (props.isAuthenticated) {
-    return (
+    const baseValid =
       form.value.questionsPerTicket >= 1 &&
       form.value.questionsPerTicket <= 50 &&
       form.value.ticketCount >= 1 &&
       form.value.ticketCount <= 100
-    )
+
+    if (enablePageBreaks.value) {
+      return baseValid && form.value.ticketsPerPage >= 1 && form.value.ticketsPerPage <= 10
+    }
+    return baseValid
   }
   return (
     form.value.questionsPerTicket >= 1 &&
@@ -163,9 +201,11 @@ watch(() => props.visible, (val) => {
     // Сброс состояния при закрытии
     error.value = ''
     generatedTicket.value = null
+    enablePageBreaks.value = false
     form.value = {
       questionsPerTicket: 10,
       ticketCount: 20,
+      ticketsPerPage: 1,
     }
   }
 }, { immediate: true })
@@ -184,6 +224,7 @@ const handleSubmit = async () => {
       const blob = await generateTicketsDocument(props.courseId, {
         questionsPerTicket: form.value.questionsPerTicket,
         ticketCount: form.value.ticketCount,
+        ticketsPerPage: enablePageBreaks.value ? form.value.ticketsPerPage : 0,
       })
 
       // Создаем имя файла из названия курса
@@ -233,9 +274,11 @@ const handleSubmit = async () => {
 const onHide = () => {
   error.value = ''
   generatedTicket.value = null
+  enablePageBreaks.value = false
   form.value = {
     questionsPerTicket: 10,
     ticketCount: 20,
+    ticketsPerPage: 1,
   }
 }
 </script>

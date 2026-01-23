@@ -40,4 +40,7 @@ export const examQuestionsApi = {
 
   delete: (id: number) =>
     apiClient.delete(`/admin/exam-questions/${id}`),
+
+  bulkDelete: (ids: number[]) =>
+    apiClient.post('/admin/exam-questions/bulk-delete', { ids }),
 }

@@ -16,7 +16,6 @@ func NewExamQuestionRepository(db *sql.DB) *ExamQuestionRepository {
 	return &ExamQuestionRepository{db: db}
 }
 
-
 func (r *ExamQuestionRepository) GetAll() ([]models.ExamQuestion, error) {
 	query, args, err := sq.Select("id", "course_id", "number", "section", "question", "created_at", "updated_at").
 		From("exam_questions").
@@ -47,7 +46,6 @@ func (r *ExamQuestionRepository) GetAll() ([]models.ExamQuestion, error) {
 
 	return questions, nil
 }
-
 
 func (r *ExamQuestionRepository) GetByCourseID(courseID int) ([]models.ExamQuestion, error) {
 	query, args, err := sq.Select("id", "course_id", "number", "section", "question", "created_at", "updated_at").
@@ -81,7 +79,6 @@ func (r *ExamQuestionRepository) GetByCourseID(courseID int) ([]models.ExamQuest
 	return questions, nil
 }
 
-
 func (r *ExamQuestionRepository) GetByID(id int) (*models.ExamQuestion, error) {
 	query, args, err := sq.Select("id", "course_id", "number", "section", "question", "created_at", "updated_at").
 		From("exam_questions").
@@ -103,7 +100,6 @@ func (r *ExamQuestionRepository) GetByID(id int) (*models.ExamQuestion, error) {
 	return &q, nil
 }
 
-
 func (r *ExamQuestionRepository) Create(courseID, number int, section, question string) (*models.ExamQuestion, error) {
 	query, args, err := sq.Insert("exam_questions").
 		Columns("course_id", "number", "section", "question").
@@ -123,7 +119,6 @@ func (r *ExamQuestionRepository) Create(courseID, number int, section, question 
 		return nil, fmt.Errorf("failed to get ID: %w", err)
 	}
 
-	
 	examQuestion, err := r.GetByID(int(id))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get created exam question: %w", err)
@@ -134,7 +129,6 @@ func (r *ExamQuestionRepository) Create(courseID, number int, section, question 
 
 	return examQuestion, nil
 }
-
 
 func (r *ExamQuestionRepository) Update(id, courseID, number int, section, question string) error {
 	query, args, err := sq.Update("exam_questions").
@@ -156,7 +150,6 @@ func (r *ExamQuestionRepository) Update(id, courseID, number int, section, quest
 	return nil
 }
 
-
 func (r *ExamQuestionRepository) Delete(id int) error {
 	query, args, err := sq.Delete("exam_questions").
 		Where(sq.Eq{"id": id}).
@@ -172,7 +165,6 @@ func (r *ExamQuestionRepository) Delete(id int) error {
 
 	return nil
 }
-
 
 func (r *ExamQuestionRepository) BulkCreate(questions []models.ExamQuestion) error {
 	if len(questions) == 0 {
@@ -199,7 +191,6 @@ func (r *ExamQuestionRepository) BulkCreate(questions []models.ExamQuestion) err
 	return nil
 }
 
-
 func (r *ExamQuestionRepository) DeleteByCourseID(courseID int) error {
 	query, args, err := sq.Delete("exam_questions").
 		Where(sq.Eq{"course_id": courseID}).
@@ -211,6 +202,26 @@ func (r *ExamQuestionRepository) DeleteByCourseID(courseID int) error {
 	_, err = r.db.Exec(query, args...)
 	if err != nil {
 		return fmt.Errorf("failed to delete exam questions by course_id: %w", err)
+	}
+
+	return nil
+}
+
+func (r *ExamQuestionRepository) BulkDelete(ids []int) error {
+	if len(ids) == 0 {
+		return nil
+	}
+
+	query, args, err := sq.Delete("exam_questions").
+		Where(sq.Eq{"id": ids}).
+		ToSql()
+	if err != nil {
+		return fmt.Errorf("failed to build query: %w", err)
+	}
+
+	_, err = r.db.Exec(query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to bulk delete exam questions: %w", err)
 	}
 
 	return nil

@@ -19,7 +19,7 @@ type TicketServiceInterface interface {
 
 // DocumentServiceInterface - интерфейс для сервиса генерации документов
 type DocumentServiceInterface interface {
-	GenerateTicketsDocument(tickets []models.Ticket) []byte
+	GenerateTicketsDocument(tickets []models.Ticket, ticketsPerPage int) []byte
 }
 
 // CourseRepositoryInterface - интерфейс для репозитория курсов
@@ -159,7 +159,8 @@ func (h *TicketHandler) GenerateTicketsDocument(c *gin.Context) {
 	}
 
 	// Генерируем TXT документ
-	document := h.documentService.GenerateTicketsDocument(tickets)
+	// ticketsPerPage: 0 = все подряд, 1+ = разбивка по страницам
+	document := h.documentService.GenerateTicketsDocument(tickets, req.TicketsPerPage)
 
 	// Создаем имя файла из названия курса
 	courseSlug := strings.ToLower(strings.ReplaceAll(course.Name, " ", "_"))
