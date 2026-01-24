@@ -13,6 +13,7 @@ import (
 
 type UserRepository interface {
 	GetByUsername(username string) (*models.User, error)
+	UpdateLastLogin(id int) error
 }
 
 type AuthHandler struct {
@@ -86,6 +87,12 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		h.logger.ErrorContext(c.Request.Context(), "Account deactivated", "username", req.Username)
 		c.JSON(http.StatusForbidden, gin.H{"error": "Account is deactivated"})
 		return
+	}
+
+	// Update last login timestamp
+	if err := h.userRepo.UpdateLastLogin(user.ID); err != nil {
+		// Log error but don't fail the login
+		h.logger.WarnContext(c.Request.Context(), "Failed to update last login", "user_id", user.ID, "error", err)
 	}
 
 	token, err := h.jwtManager.GenerateToken(user)
