@@ -30,6 +30,11 @@ func (m *MockUserRepository) GetByUsername(username string) (*models.User, error
 	return args.Get(0).(*models.User), args.Error(1)
 }
 
+func (m *MockUserRepository) UpdateLastLogin(id int) error {
+	args := m.Called(id)
+	return args.Error(0)
+}
+
 func TestAuthHandler_Login(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -56,6 +61,7 @@ func TestAuthHandler_Login(t *testing.T) {
 		}
 
 		mockRepo.On("GetByUsername", "testuser").Return(user, nil)
+		mockRepo.On("UpdateLastLogin", user.ID).Return(nil)
 
 		handler := NewAuthHandlerWithRepo(mockRepo, jwtManager, logger)
 
