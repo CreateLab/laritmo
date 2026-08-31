@@ -41,12 +41,21 @@
       <TabView v-if="!loading">
         <TabPanel header="📚 Лекции" value="lectures">
 
-          <div v-if="authStore.isAdmin" class="mb-4">
+          <div class="mb-4 flex gap-2 flex-wrap">
             <button
+                v-if="authStore.isAdmin"
                 @click="addLecture"
                 class="px-4 py-2 bg-forest-green dark:bg-forest-green-dark text-white rounded-lg hover:bg-forest-dark dark:hover:bg-forest-green transition-colors duration-300"
             >
               ➕ Добавить лекцию
+            </button>
+            <button
+                v-if="authStore.isAuthenticated && lectures.length > 0"
+                @click="downloadLecturesMarkdown"
+                :disabled="exportingLectures"
+                class="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-lg hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors duration-300 disabled:opacity-50"
+            >
+              {{ exportingLectures ? 'Скачивание...' : '⬇ Скачать все в Markdown' }}
             </button>
           </div>
 
@@ -356,6 +365,7 @@ const examQuestions = ref<ExamQuestion[]>([])
 
 const loading = ref(true)
 const lecturesLoading = ref(true)
+const exportingLectures = ref(false)
 const labsLoading = ref(true)
 const gradeSheetsLoading = ref(true)
 const examQuestionsLoading = ref(true)
@@ -416,6 +426,27 @@ const goToLecture = (lectureId: number) => {
 const addLecture = () => {
   editingLecture.value = null
   showLectureDialog.value = true
+}
+
+const downloadLecturesMarkdown = async () => {
+  exportingLectures.value = true
+  try {
+    const response = await lecturesApi.exportMarkdown(courseId)
+    const blob = new Blob([response.data], { type: 'text/markdown;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `lectures-course-${courseId}.md`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('Failed to export lectures:', error)
+    alert('Ошибка скачивания лекций')
+  } finally {
+    exportingLectures.value = false
+  }
 }
 
 const goToLab = (labId: number) => {
