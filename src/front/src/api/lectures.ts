@@ -25,4 +25,10 @@ export const lecturesApi = {
         apiClient.put(`/admin/lectures/${id}`, data),
     delete: (id: number) =>
         apiClient.delete(`/admin/lectures/${id}`),
+
+    exportMarkdown: (courseId?: number) =>
+        apiClient.get<Blob>('/lectures/export', {
+            params: courseId ? { course_id: courseId } : {},
+            responseType: 'blob',
+        }),
 }

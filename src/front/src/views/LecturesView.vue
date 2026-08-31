@@ -7,7 +7,17 @@
       >
         ← Назад
       </button>
-      <h1 class="text-3xl font-bold text-forest-dark">📚 Лекции</h1>
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+        <h1 class="text-3xl font-bold text-forest-dark">📚 Лекции</h1>
+        <button
+            v-if="authStore.isAuthenticated"
+            @click="downloadMarkdown"
+            :disabled="exporting"
+            class="px-4 py-2 bg-forest-green text-white rounded-lg hover:bg-forest-dark transition-colors disabled:opacity-50"
+        >
+          {{ exporting ? 'Скачивание...' : '⬇ Скачать в Markdown' }}
+        </button>
+      </div>
       <p v-if="!loading && lectures.length > 0" class="text-gray-600 mt-2">
         Курс: {{ lectures[0]?.course_id ?? 'N/A' }}
       </p>
@@ -55,11 +65,35 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { lecturesApi, type Lecture } from '@/api/lectures'
+import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
 const lectures = ref<Lecture[]>([])
 const loading = ref(true)
+const exporting = ref(false)
 const router = useRouter()
+const authStore = useAuthStore()
+
+const downloadMarkdown = async () => {
+  exporting.value = true
+  try {
+    const courseId = route.query.course_id ? Number(route.query.course_id) : undefined
+    const response = await lecturesApi.exportMarkdown(courseId)
+    const blob = new Blob([response.data], { type: 'text/markdown;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = courseId ? `lectures-course-${courseId}.md` : 'lectures.md'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('Failed to export lectures:', error)
+  } finally {
+    exporting.value = false
+  }
+}
 
 
 onMounted(async () => {

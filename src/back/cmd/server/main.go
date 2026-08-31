@@ -105,7 +105,7 @@ func main() {
 
 	jwtManager := auth.NewJWTManager(cfg.Auth.JWTSecret, cfg.Auth.JWTExpirationHours)
 	courseHandler := handlers.NewCourseHandler(courseRepo, logger)
-	lectureHandler := handlers.NewLectureHandler(lectureRepo, logger)
+	lectureHandler := handlers.NewLectureHandler(lectureRepo, courseRepo, logger)
 	labHandler := handlers.NewLabHandler(labRepo, logger)
 	gradeSheetHandler := handlers.NewGradeSheetHandler(gradeSheetRepo, logger)
 	examQuestionHandler := handlers.NewExamQuestionHandler(examQuestionRepo, logger)
@@ -158,6 +158,13 @@ func main() {
 	api.GET("/exam-questions/:id", examQuestionHandler.GetByID)
 
 	api.GET("/courses/:id/tickets/random", ticketHandler.GetRandomTicket)
+
+	// Authenticated (any registered user) - bulk export
+	studentGroup := r.Group("/api")
+	studentGroup.Use(middleware.AuthMiddleware(jwtManager))
+	{
+		studentGroup.GET("/lectures/export", lectureHandler.ExportMarkdown)
+	}
 
 	loginGroup := api.Group("/auth")
 	loginGroup.Use(middleware.RateLimitMiddleware(cfg.Auth.GetRateLimitRequests(), cfg.Auth.GetRateLimitBurst()))
