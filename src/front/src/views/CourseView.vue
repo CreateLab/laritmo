@@ -122,6 +122,15 @@
                       Лаба #{{ lab.number }}
                     </span>
                     <span class="text-xs text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Макс: {{ lab.max_score }} баллов</span>
+                    <span
+                        v-if="lab.deadline"
+                        :class="isOverdue(lab.deadline)
+                          ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                          : 'bg-gray-100 dark:bg-dark-border text-gray-600 dark:text-dark-text-secondary'"
+                        class="px-2 py-1 rounded-full text-xs transition-colors duration-300"
+                    >
+                      Дедлайн: {{ formatDate(lab.deadline) }}
+                    </span>
                   </div>
                   <h3 class="font-semibold text-forest-dark dark:text-dark-text mb-2 transition-colors duration-300">{{ lab.title }}</h3>
                   <p class="text-sm text-gray-600 dark:text-dark-text-secondary line-clamp-2 transition-colors duration-300">
@@ -458,6 +467,18 @@ const goToLab = (labId: number) => {
 const addLab = () => {
   editingLab.value = null
   showLabDialog.value = true
+}
+
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('ru-RU', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
+const isOverdue = (dateString: string) => {
+  return new Date(dateString) < new Date()
 }
 
 const handleLabSaved = async () => {
