@@ -13,14 +13,14 @@ import (
 type GradeSheetHandler struct {
 	repo     *repository.GradeSheetRepository
 	logger   *slog.Logger
-	embedder *gradeSheetEmbedder
+	embedder *gradeSheetTable
 }
 
 func NewGradeSheetHandler(repo *repository.GradeSheetRepository, logger *slog.Logger) *GradeSheetHandler {
 	return &GradeSheetHandler{
 		repo:     repo,
 		logger:   logger,
-		embedder: newGradeSheetEmbedder(),
+		embedder: newGradeSheetTable(),
 	}
 }
 

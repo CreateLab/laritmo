@@ -162,7 +162,7 @@
 
           <div v-else class="space-y-3">
             <template v-for="sheet in gradeSheets" :key="sheet.id">
-            <div v-if="sheet.embed_url" class="space-y-2">
+            <div v-if="sheet.table && sheet.table.length" class="space-y-2">
               <div class="flex items-center justify-between gap-3">
                 <h3 class="font-semibold text-forest-dark dark:text-dark-text transition-colors duration-300">
                   {{ sheet.description || 'Google Sheets журнал' }}
@@ -174,11 +174,28 @@
                     class="text-sm text-forest-green dark:text-forest-green-dark hover:underline"
                 >Открыть в новой вкладке ↗</a>
               </div>
-              <iframe
-                  :src="sheet.embed_url"
-                  loading="lazy"
-                  class="w-full h-[70vh] rounded-lg border border-gray-200 dark:border-gray-700 bg-white"
-              ></iframe>
+              <div class="overflow-auto max-h-[70vh] rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface">
+                <table class="min-w-full text-sm text-forest-dark dark:text-dark-text">
+                  <thead class="sticky top-0 bg-forest-mint dark:bg-dark-surface">
+                    <tr>
+                      <th
+                          v-for="(cell, ci) in sheet.table[0]"
+                          :key="ci"
+                          class="px-3 py-2 text-left font-semibold border-b border-gray-200 dark:border-gray-700 whitespace-nowrap"
+                      >{{ cell }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                        v-for="(row, ri) in sheet.table.slice(1)"
+                        :key="ri"
+                        class="border-b border-gray-100 dark:border-gray-800 last:border-0"
+                    >
+                      <td v-for="(cell, ci) in row" :key="ci" class="px-3 py-2 whitespace-nowrap">{{ cell }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
             <a
                 v-else

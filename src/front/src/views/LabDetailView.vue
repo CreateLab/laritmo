@@ -8,6 +8,32 @@
         ← Назад к курсу
       </button>
 
+      <nav v-if="allLabs.length > 1" class="mb-4 flex items-center gap-2">
+        <button
+            @click="goToLab(prevLab)"
+            :disabled="!prevLab"
+            class="px-3 py-2 rounded-lg bg-white dark:bg-dark-surface text-forest-green dark:text-forest-green-dark shadow disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-300"
+        >
+          ← Предыдущая
+        </button>
+        <select
+            :value="labId"
+            @change="goToLab(allLabs.find(l => l.id === Number(($event.target as HTMLSelectElement).value)) ?? null)"
+            class="flex-1 min-w-0 px-3 py-2 rounded-lg bg-white dark:bg-dark-surface text-forest-dark dark:text-dark-text shadow transition-colors duration-300"
+        >
+          <option v-for="l in allLabs" :key="l.id" :value="l.id">
+            Лаба #{{ l.number }} — {{ l.title }}
+          </option>
+        </select>
+        <button
+            @click="goToLab(nextLab)"
+            :disabled="!nextLab"
+            class="px-3 py-2 rounded-lg bg-white dark:bg-dark-surface text-forest-green dark:text-forest-green-dark shadow disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-300"
+        >
+          Следующая →
+        </button>
+      </nav>
+
       <div v-if="loading" class="animate-pulse">
         <div class="h-8 bg-gray-200 dark:bg-dark-surface rounded w-3/4 mb-4"></div>
         <div class="h-4 bg-gray-200 dark:bg-dark-surface rounded w-1/4"></div>
@@ -79,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { labsApi, type Lab } from '@/api/labs'
 import { marked, Renderer } from 'marked'
@@ -96,6 +122,17 @@ const authStore = useAuthStore()
 const showEditDialog = ref(false)
 
 const courseId = route.params.courseId
+const labId = computed(() => Number(route.params.id))
+const allLabs = ref<Lab[]>([])
+
+const currentIndex = computed(() => allLabs.value.findIndex(l => l.id === labId.value))
+const prevLab = computed(() => (currentIndex.value > 0 ? allLabs.value[currentIndex.value - 1] : null) ?? null)
+const nextLab = computed(() => (currentIndex.value >= 0 ? allLabs.value[currentIndex.value + 1] : null) ?? null)
+
+const goToLab = (target: Lab | null) => {
+  if (!target) return
+  router.push(`/courses/${courseId}/labs/${target.id}`)
+}
 
 const goBack = () => {
   router.push(`/courses/${courseId}`)
@@ -154,16 +191,36 @@ const renderedContent = computed(() => {
   return marked(lab.value.description)
 })
 
-onMounted(async () => {
+const loadLab = async () => {
+  loading.value = true
   try {
-    const id = Number(route.params.id)
-    const { data } = await labsApi.getById(id)
+    const { data } = await labsApi.getById(labId.value)
     lab.value = data
   } catch (error) {
+    lab.value = null
     console.error('Failed to load lab:', error)
   } finally {
     loading.value = false
   }
+}
+
+const loadLabList = async () => {
+  try {
+    const { data } = await labsApi.getAll(Number(courseId))
+    allLabs.value = [...data].sort((a, b) => a.number - b.number)
+  } catch (error) {
+    console.error('Failed to load lab list:', error)
+  }
+}
+
+onMounted(() => {
+  loadLab()
+  loadLabList()
+})
+
+watch(labId, () => {
+  loadLab()
+  window.scrollTo({ top: 0 })
 })
 </script>
 
