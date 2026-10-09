@@ -8,6 +8,32 @@
         ← Назад к курсу
       </button>
 
+      <nav v-if="allLectures.length > 1" class="mb-4 flex items-center gap-2">
+        <button
+            @click="goToLecture(prevLecture)"
+            :disabled="!prevLecture"
+            class="px-3 py-2 rounded-lg bg-white dark:bg-dark-surface text-forest-green dark:text-forest-green-dark shadow disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-300"
+        >
+          ← Предыдущая
+        </button>
+        <select
+            :value="lectureId"
+            @change="goToLecture(allLectures.find(l => l.id === Number(($event.target as HTMLSelectElement).value)) ?? null)"
+            class="flex-1 min-w-0 px-3 py-2 rounded-lg bg-white dark:bg-dark-surface text-forest-dark dark:text-dark-text shadow transition-colors duration-300"
+        >
+          <option v-for="l in allLectures" :key="l.id" :value="l.id">
+            Неделя {{ l.week }} — {{ l.title }}
+          </option>
+        </select>
+        <button
+            @click="goToLecture(nextLecture)"
+            :disabled="!nextLecture"
+            class="px-3 py-2 rounded-lg bg-white dark:bg-dark-surface text-forest-green dark:text-forest-green-dark shadow disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-300"
+        >
+          Следующая →
+        </button>
+      </nav>
+
       <div v-if="loading" class="animate-pulse">
         <div class="h-8 bg-gray-200 dark:bg-dark-surface rounded w-3/4 mb-4"></div>
         <div class="h-4 bg-gray-200 dark:bg-dark-surface rounded w-1/4"></div>
@@ -73,7 +99,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { lecturesApi, type Lecture } from '@/api/lectures'
 import { marked, Renderer } from 'marked'
@@ -89,9 +115,19 @@ const route = useRoute()
 const router = useRouter()
 const lecture = ref<Lecture | null>(null)
 const loading = ref(true)
-const lectureId = Number(route.params.id)
+const lectureId = computed(() => Number(route.params.id))
+const allLectures = ref<Lecture[]>([])
 
 const courseId = route.params.courseId
+
+const currentIndex = computed(() => allLectures.value.findIndex(l => l.id === lectureId.value))
+const prevLecture = computed(() => (currentIndex.value > 0 ? allLectures.value[currentIndex.value - 1] : null) ?? null)
+const nextLecture = computed(() => (currentIndex.value >= 0 ? allLectures.value[currentIndex.value + 1] : null) ?? null)
+
+const goToLecture = (target: Lecture | null) => {
+  if (!target) return
+  router.push(`/courses/${courseId}/lectures/${target.id}`)
+}
 
 const goBack = () => {
   router.push(`/courses/${courseId}`)
@@ -105,7 +141,7 @@ const deleteLecture = async () => {
   if (!confirm('Удалить лекцию?')) return
 
   try {
-    await lecturesApi.delete(lectureId)
+    await lecturesApi.delete(lectureId.value)
     router.push(`/courses/${courseId}`)
   } catch (error) {
     console.error('Failed to delete:', error)
@@ -115,10 +151,33 @@ const deleteLecture = async () => {
 
 const handleLectureSaved = async () => {
   try {
-    const { data } = await lecturesApi.getById(lectureId)
+    const { data } = await lecturesApi.getById(lectureId.value)
     lecture.value = data
+    await loadLectureList()
   } catch (error) {
     console.error('Failed to load:', error)
+  }
+}
+
+const loadLectureList = async () => {
+  try {
+    const { data } = await lecturesApi.getAll(Number(courseId))
+    allLectures.value = [...data].sort((a, b) => a.week - b.week || a.id - b.id)
+  } catch (error) {
+    console.error('Failed to load lecture list:', error)
+  }
+}
+
+const loadLecture = async () => {
+  loading.value = true
+  try {
+    const { data } = await lecturesApi.getById(lectureId.value)
+    lecture.value = data
+  } catch (error) {
+    lecture.value = null
+    console.error('Failed to load lecture:', error)
+  } finally {
+    loading.value = false
   }
 }
 
@@ -142,16 +201,14 @@ const renderedContent = computed(() => {
   return marked(lecture.value.content)
 })
 
-onMounted(async () => {
-  try {
-    const id = Number(route.params.id)
-    const { data } = await lecturesApi.getById(id)
-    lecture.value = data
-  } catch (error) {
-    console.error('Failed to load lecture:', error)
-  } finally {
-    loading.value = false
-  }
+onMounted(() => {
+  loadLecture()
+  loadLectureList()
+})
+
+watch(lectureId, () => {
+  loadLecture()
+  window.scrollTo({ top: 0 })
 })
 </script>
 
