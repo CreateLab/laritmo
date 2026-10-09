@@ -161,9 +161,27 @@
           </div>
 
           <div v-else class="space-y-3">
+            <template v-for="sheet in gradeSheets" :key="sheet.id">
+            <div v-if="sheet.embed_url" class="space-y-2">
+              <div class="flex items-center justify-between gap-3">
+                <h3 class="font-semibold text-forest-dark dark:text-dark-text transition-colors duration-300">
+                  {{ sheet.description || 'Google Sheets журнал' }}
+                </h3>
+                <a
+                    :href="sheet.sheet_url"
+                    target="_blank"
+                    rel="noopener"
+                    class="text-sm text-forest-green dark:text-forest-green-dark hover:underline"
+                >Открыть в новой вкладке ↗</a>
+              </div>
+              <iframe
+                  :src="sheet.embed_url"
+                  loading="lazy"
+                  class="w-full h-[70vh] rounded-lg border border-gray-200 dark:border-gray-700 bg-white"
+              ></iframe>
+            </div>
             <a
-                v-for="sheet in gradeSheets"
-                :key="sheet.id"
+                v-else
                 :href="sheet.sheet_url"
                 target="_blank"
                 class="block bg-white dark:bg-dark-surface rounded-lg shadow dark:shadow-lg p-4 hover:shadow-md dark:hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-forest-mint dark:hover:border-forest-mint-dark"
@@ -178,6 +196,7 @@
                 </div>
               </div>
             </a>
+            </template>
           </div>
         </TabPanel>
 

@@ -5,6 +5,7 @@ export interface GradeSheet {
     course_id: number
     sheet_url: string
     description: string | null
+    embed_url?: string
     created_at: string
     updated_at: string
 }

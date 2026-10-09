@@ -11,14 +11,16 @@ import (
 )
 
 type GradeSheetHandler struct {
-	repo   *repository.GradeSheetRepository
-	logger *slog.Logger
+	repo     *repository.GradeSheetRepository
+	logger   *slog.Logger
+	embedder *gradeSheetEmbedder
 }
 
 func NewGradeSheetHandler(repo *repository.GradeSheetRepository, logger *slog.Logger) *GradeSheetHandler {
 	return &GradeSheetHandler{
-		repo:   repo,
-		logger: logger,
+		repo:     repo,
+		logger:   logger,
+		embedder: newGradeSheetEmbedder(),
 	}
 }
 
@@ -54,7 +56,7 @@ func (h *GradeSheetHandler) GetAll(c *gin.Context) {
 		sheets = []models.GradeSheet{}
 	}
 
-	c.JSON(http.StatusOK, sheets)
+	c.JSON(http.StatusOK, h.embedder.decorate(c.Request.Context(), sheets))
 }
 
 // GetByID godoc
