@@ -231,3 +231,6 @@
 .EasyMDEContainer .editor-statusbar { color: var(--ink-muted); }
 .EasyMDEContainer .cm-s-easymde .cm-link, .EasyMDEContainer .cm-s-easymde .cm-url { color: var(--action); }
 .EasyMDEContainer .cm-s-easymde .cm-comment { background: var(--sunken); }
+
+/* Счётчик в названии вкладки */
+.tab-count { font-size: 0.75rem; line-height: 1rem; font-weight: 500; padding: 0 0.375rem; border-radius: 9999px; background: var(--sunken); color: var(--ink-muted); }

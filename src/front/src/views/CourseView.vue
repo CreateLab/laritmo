@@ -14,64 +14,49 @@
       </div>
 
       <template v-else-if="course">
-        <h1 class="text-h1 text-ink">{{ course.name }}</h1>
-        <!-- только мобильный: то, что на десктопе живёт в карточке «О курсе» -->
-        <div class="sm:hidden mt-3 space-y-3">
-          <AppChip>{{ course.semester }}</AppChip>
-          <p v-if="course.description" class="text-body-sm text-ink-muted line-clamp-2">{{ course.description }}</p>
-          <div v-if="authStore.isAdmin" class="flex gap-2">
-            <AppButton class="min-h-11 flex-1" icon="pi-pencil" @click="editCourse">Редактировать</AppButton>
-            <AppButton class="min-h-11 flex-1" variant="danger" icon="pi-trash" @click="deleteCourse">Удалить</AppButton>
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-2 min-w-0">
+            <h1 class="text-h1 text-ink">{{ course.name }}</h1>
+            <AppChip>{{ course.semester }}</AppChip>
+          </div>
+          <div v-if="authStore.isAdmin" class="flex gap-2 shrink-0">
+            <AppButton class="min-h-11 sm:min-h-0" icon="pi-pencil" aria-label="Редактировать" @click="editCourse">
+              <span class="hidden sm:inline">Редактировать</span>
+            </AppButton>
+            <AppButton class="min-h-11 sm:min-h-0" variant="danger" icon="pi-trash" aria-label="Удалить" @click="deleteCourse">
+              <span class="hidden sm:inline">Удалить</span>
+            </AppButton>
           </div>
         </div>
+        <p v-if="course.description" class="text-body text-ink-muted max-w-3xl mt-3">{{ course.description }}</p>
       </template>
     </header>
 
-    <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] items-start">
-    <aside v-if="course" class="hidden sm:block order-first lg:order-none lg:col-start-2 lg:row-start-1 lg:sticky lg:top-24">
-      <section class="card space-y-4">
-        <h2 class="text-h3 text-ink">О курсе</h2>
-        <div><AppChip>{{ course.semester }}</AppChip></div>
-        <p v-if="course.description" class="text-body text-ink-muted">{{ course.description }}</p>
-        <dl class="text-body text-ink space-y-1">
-          <div class="flex justify-between gap-2">
-            <dt class="text-ink-muted">Лекций</dt>
-            <dd class="font-medium tabular-nums">{{ lectures.length }}</dd>
-          </div>
-          <div class="flex justify-between gap-2">
-            <dt class="text-ink-muted">Лабораторных</dt>
-            <dd class="font-medium tabular-nums">{{ labs.length }}</dd>
-          </div>
-        </dl>
-        <div class="flex flex-col gap-2">
-          <AppButton
-              v-if="authStore.isAuthenticated && lectures.length > 0"
-              icon="pi-download"
-              @click="downloadLecturesMarkdown"
-              :disabled="exportingLectures"
-          >
-            {{ exportingLectures ? 'Скачивание...' : 'Скачать все в Markdown' }}
-          </AppButton>
-          <template v-if="authStore.isAdmin">
-            <AppButton icon="pi-pencil" @click="editCourse">Редактировать</AppButton>
-            <AppButton variant="danger" icon="pi-trash" @click="deleteCourse">Удалить</AppButton>
-          </template>
-        </div>
-      </section>
-    </aside>
-
-    <main class="min-w-0 lg:col-start-1 lg:row-start-1">
+    <main class="min-w-0">
       <TabView v-if="!loading" class="min-h-[24rem]" @tab-change="scrollActiveTabIntoView">
-        <TabPanel header="Лекции" value="lectures">
+        <TabPanel value="lectures">
+          <template #header>
+            <span class="flex items-center gap-2">Лекции<span v-if="!lecturesLoading" class="tab-count">{{ lectures.length }}</span></span>
+          </template>
 
-          <div v-if="authStore.isAdmin" class="mb-4 flex gap-2 flex-wrap">
+          <div v-if="authStore.isAdmin || (authStore.isAuthenticated && lectures.length > 0)" class="mb-4 flex gap-2 flex-wrap">
             <AppButton
+                v-if="authStore.isAdmin"
                 class="min-h-11 sm:min-h-0"
                 variant="primary"
                 icon="pi-plus"
                 @click="addLecture"
             >
               Добавить лекцию
+            </AppButton>
+            <AppButton
+                v-if="authStore.isAuthenticated && lectures.length > 0"
+                class="min-h-11 sm:min-h-0"
+                icon="pi-download"
+                @click="downloadLecturesMarkdown"
+                :disabled="exportingLectures"
+            >
+              {{ exportingLectures ? 'Скачивание...' : 'Скачать все в Markdown' }}
             </AppButton>
           </div>
 
@@ -81,7 +66,7 @@
 
           <EmptyState v-else-if="lectures.length === 0" title="Лекции пока не добавлены" text="Когда преподаватель добавит материалы, они появятся здесь." />
 
-          <div v-else class="space-y-3">
+          <div v-else class="space-y-3 max-w-4xl">
             <div
                 v-for="lecture in lectures"
                 :key="lecture.id"
@@ -97,7 +82,10 @@
           </div>
         </TabPanel>
 
-        <TabPanel header="Лабораторные" value="labs">
+        <TabPanel value="labs">
+          <template #header>
+            <span class="flex items-center gap-2">Лабораторные<span v-if="!labsLoading" class="tab-count">{{ labs.length }}</span></span>
+          </template>
           <div v-if="authStore.isAdmin" class="mb-4">
             <AppButton class="min-h-11 sm:min-h-0" variant="primary" icon="pi-plus" @click="addLab">Добавить лабораторную</AppButton>
           </div>
@@ -108,7 +96,7 @@
 
           <EmptyState v-else-if="labs.length === 0" title="Лабораторные пока не добавлены" text="Задания по курсу появятся здесь." />
 
-          <div v-else class="space-y-3">
+          <div v-else class="space-y-3 max-w-4xl">
             <div
                 v-for="lab in labs"
                 :key="lab.id"
@@ -168,27 +156,7 @@
                     class="text-body-sm text-action hover:text-action-hover hover:underline"
                 >Открыть в новой вкладке ↗</a>
               </div>
-              <div class="table-wrap max-h-[70vh] overflow-auto">
-                <table class="data-table">
-                  <thead class="sticky top-0">
-                    <tr>
-                      <th
-                          v-for="(cell, ci) in sheet.table[0]"
-                          :key="ci"
-                          class="text-label"
-                      >{{ cell }}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                        v-for="(row, ri) in sheet.table.slice(1)"
-                        :key="ri"
-                    >
-                      <td v-for="(cell, ci) in row" :key="ci" class="whitespace-nowrap">{{ cell }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+              <GradeTable :table="sheet.table" />
             </div>
             <a
                 v-else
@@ -286,7 +254,6 @@
         </TabPanel>
       </TabView>
     </main>
-    </div>
 
     <CourseEditDialog
         v-model="showEditDialog"
@@ -350,6 +317,7 @@ import { examQuestionsApi, type ExamQuestion } from '@/api/examquestions'
 import TabView from 'primevue/tabview'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppChip from '@/components/ui/AppChip.vue'
+import GradeTable from '@/components/GradeTable.vue'
 import TabPanel from 'primevue/tabpanel'
 import CourseEditDialog from '@/components/CourseEditDialog.vue'
 import { useAuthStore } from '@/stores/auth'
