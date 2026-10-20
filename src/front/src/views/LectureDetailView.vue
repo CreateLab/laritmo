@@ -17,8 +17,8 @@
             @change="goToLecture(allLectures.find(l => l.id === Number(($event.target as HTMLSelectElement).value)) ?? null)"
             class="field flex-1 min-w-0"
         >
-          <option v-for="l in allLectures" :key="l.id" :value="l.id">
-            Неделя {{ l.week }} — {{ l.title }}
+          <option v-for="l in allLectures" :key="l.id" :value="l.id" :title="l.title">
+            {{ l.title }}
           </option>
         </select>
         <AppButton @click="goToLecture(nextLecture)" :disabled="!nextLecture">Следующая →</AppButton>
@@ -48,10 +48,7 @@
         <EmptyState v-else-if="!lecture" title="Лекция не найдена" text="Возможно, она была удалена или ссылка устарела." />
 
         <article v-else class="bg-surface border border-border rounded-lg p-6 sm:p-8">
-          <div class="xl:hidden flex flex-wrap items-center gap-2">
-            <AppChip>Неделя {{ lecture.week }}</AppChip>
-          </div>
-          <h1 class="text-h1 mt-3 xl:mt-0 mb-4">{{ lecture.title }}</h1>
+          <h1 class="text-h1 mb-4">{{ lecture.title }}</h1>
           <div class="xl:hidden flex flex-wrap gap-2 mb-6">
             <a v-if="lecture.github_url" :href="lecture.github_url" target="_blank" rel="noopener" class="btn btn-secondary">
               <i class="pi pi-github" aria-hidden="true"></i>
@@ -67,8 +64,19 @@
       </main>
 
       <aside v-if="lecture" class="hidden xl:flex flex-col gap-3 sticky top-24 self-start">
-        <div class="flex flex-wrap gap-2">
-          <AppChip>Неделя {{ lecture.week }}</AppChip>
+        <div v-if="allLectures.length > 1" class="flex flex-col gap-2">
+          <p class="text-label text-ink-muted">Лекции</p>
+          <select
+              :value="lectureId"
+              @change="goToLecture(allLectures.find(l => l.id === Number(($event.target as HTMLSelectElement).value)) ?? null)"
+              class="field w-full min-w-0 truncate" :title="lecture?.title"
+          >
+            <option v-for="l in allLectures" :key="l.id" :value="l.id" :title="l.title">
+              {{ l.title }}
+            </option>
+          </select>
+          <AppButton @click="goToLecture(prevLecture)" :disabled="!prevLecture">← Предыдущая</AppButton>
+          <AppButton @click="goToLecture(nextLecture)" :disabled="!nextLecture">Следующая →</AppButton>
         </div>
         <a v-if="lecture.github_url" :href="lecture.github_url" target="_blank" rel="noopener" class="btn btn-secondary">
           <i class="pi pi-github" aria-hidden="true"></i>
@@ -78,20 +86,6 @@
           <AppButton icon="pi-pencil" @click="editLecture">Редактировать</AppButton>
           <AppButton variant="danger" icon="pi-trash" @click="deleteLecture">Удалить</AppButton>
         </template>
-        <div v-if="allLectures.length > 1" class="flex flex-col gap-2 pt-3 border-t border-border">
-          <p class="text-label text-ink-muted">Лекции</p>
-          <select
-              :value="lectureId"
-              @change="goToLecture(allLectures.find(l => l.id === Number(($event.target as HTMLSelectElement).value)) ?? null)"
-              class="field w-full min-w-0"
-          >
-            <option v-for="l in allLectures" :key="l.id" :value="l.id">
-              Неделя {{ l.week }}
-            </option>
-          </select>
-          <AppButton @click="goToLecture(prevLecture)" :disabled="!prevLecture">← Предыдущая</AppButton>
-          <AppButton @click="goToLecture(nextLecture)" :disabled="!nextLecture">Следующая →</AppButton>
-        </div>
       </aside>
     </div>
 
@@ -116,7 +110,6 @@ import hljs from 'highlight.js'
 import { useAuthStore } from '@/stores/auth'
 import LectureEditDialog from '@/components/LectureEditDialog.vue'
 import AppButton from '@/components/ui/AppButton.vue'
-import AppChip from '@/components/ui/AppChip.vue'
 
 const authStore = useAuthStore()
 const showEditDialog = ref(false)

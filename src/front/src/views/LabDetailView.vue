@@ -17,8 +17,8 @@
             @change="goToLab(allLabs.find(l => l.id === Number(($event.target as HTMLSelectElement).value)) ?? null)"
             class="field flex-1 min-w-0"
         >
-          <option v-for="l in allLabs" :key="l.id" :value="l.id">
-            Лаба #{{ l.number }} — {{ l.title }}
+          <option v-for="l in allLabs" :key="l.id" :value="l.id" :title="l.title">
+            {{ l.title }}
           </option>
         </select>
         <AppButton @click="goToLab(nextLab)" :disabled="!nextLab">Следующая →</AppButton>
@@ -49,7 +49,6 @@
 
         <article v-else class="bg-surface border border-border rounded-lg p-6 sm:p-8">
           <div class="xl:hidden flex flex-wrap items-center gap-2">
-            <AppChip>Лаба #{{ lab.number }}</AppChip>
             <AppChip>Макс. {{ lab.max_score }} баллов</AppChip>
             <AppChip v-if="lab.deadline">Дедлайн: {{ formatDate(lab.deadline) }}</AppChip>
           </div>
@@ -69,8 +68,21 @@
       </main>
 
       <aside v-if="lab" class="hidden xl:flex flex-col gap-3 sticky top-24 self-start">
+        <div v-if="allLabs.length > 1" class="flex flex-col gap-2">
+          <p class="text-label text-ink-muted">Лабораторные</p>
+          <select
+              :value="labId"
+              @change="goToLab(allLabs.find(l => l.id === Number(($event.target as HTMLSelectElement).value)) ?? null)"
+              class="field w-full min-w-0 truncate" :title="lab?.title"
+          >
+            <option v-for="l in allLabs" :key="l.id" :value="l.id" :title="l.title">
+              {{ l.title }}
+            </option>
+          </select>
+          <AppButton @click="goToLab(prevLab)" :disabled="!prevLab">← Предыдущая</AppButton>
+          <AppButton @click="goToLab(nextLab)" :disabled="!nextLab">Следующая →</AppButton>
+        </div>
         <div class="flex flex-wrap gap-2">
-          <AppChip>Лаба #{{ lab.number }}</AppChip>
           <AppChip>Макс. {{ lab.max_score }} баллов</AppChip>
           <AppChip v-if="lab.deadline">Дедлайн: {{ formatDate(lab.deadline) }}</AppChip>
         </div>
@@ -82,20 +94,6 @@
           <AppButton icon="pi-pencil" @click="editLab">Редактировать</AppButton>
           <AppButton variant="danger" icon="pi-trash" @click="deleteLab">Удалить</AppButton>
         </template>
-        <div v-if="allLabs.length > 1" class="flex flex-col gap-2 pt-3 border-t border-border">
-          <p class="text-label text-ink-muted">Лабораторные</p>
-          <select
-              :value="labId"
-              @change="goToLab(allLabs.find(l => l.id === Number(($event.target as HTMLSelectElement).value)) ?? null)"
-              class="field w-full min-w-0"
-          >
-            <option v-for="l in allLabs" :key="l.id" :value="l.id">
-              Лаба #{{ l.number }}
-            </option>
-          </select>
-          <AppButton @click="goToLab(prevLab)" :disabled="!prevLab">← Предыдущая</AppButton>
-          <AppButton @click="goToLab(nextLab)" :disabled="!nextLab">Следующая →</AppButton>
-        </div>
       </aside>
     </div>
 
