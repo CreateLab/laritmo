@@ -35,6 +35,7 @@ export default {
                 sans: ['Roboto', 'system-ui', '-apple-system', 'sans-serif'],
                 mono: ['"Roboto Mono"', 'ui-monospace', 'Consolas', 'monospace'],
             },
+            maxWidth: { page: '2400px' },
             borderRadius: { sm: '6px', md: '8px', lg: '12px' },
             boxShadow: { sm: 'var(--shadow-sm)', md: 'var(--shadow-md)' },
         },
