@@ -29,9 +29,7 @@
         <p class="text-ink-muted">Загрузка лекции...</p>
       </div>
 
-      <div v-else-if="!lecture" class="text-center py-12">
-        <p class="text-danger-text">Лекция не найдена</p>
-      </div>
+      <EmptyState v-else-if="!lecture" title="Лекция не найдена" text="Возможно, она была удалена или ссылка устарела." />
 
       <div v-else class="bg-surface border border-border rounded-lg p-8">
         <AppChip>Неделя {{ lecture.week }}</AppChip>
@@ -60,6 +58,7 @@
 </template>
 
 <script setup lang="ts">
+import EmptyState from '@/components/ui/EmptyState.vue'
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { lecturesApi, type Lecture } from '@/api/lectures'

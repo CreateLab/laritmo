@@ -29,9 +29,7 @@
         <p class="text-ink-muted">Загрузка лабораторной...</p>
       </div>
 
-      <div v-else-if="!lab" class="text-center py-12">
-        <p class="text-danger-text">Лабораторная работа не найдена</p>
-      </div>
+      <EmptyState v-else-if="!lab" title="Лабораторная работа не найдена" text="Возможно, она была удалена или ссылка устарела." />
 
       <div v-else class="bg-surface border border-border rounded-lg p-8">
         <div class="flex flex-wrap items-center gap-2">
@@ -64,6 +62,7 @@
 </template>
 
 <script setup lang="ts">
+import EmptyState from '@/components/ui/EmptyState.vue'
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { labsApi, type Lab } from '@/api/labs'

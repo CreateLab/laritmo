@@ -56,9 +56,7 @@
             <p class="text-ink-muted">Загрузка лекций...</p>
           </div>
 
-          <div v-else-if="lectures.length === 0" class="text-center py-8">
-            <p class="text-ink-muted">Лекции пока не добавлены</p>
-          </div>
+          <EmptyState v-else-if="lectures.length === 0" title="Лекции пока не добавлены" text="Когда преподаватель добавит материалы, они появятся здесь." />
 
           <div v-else class="space-y-3">
             <div
@@ -82,9 +80,7 @@
             <p class="text-ink-muted">Загрузка лаб...</p>
           </div>
 
-          <div v-else-if="labs.length === 0" class="text-center py-8">
-            <p class="text-ink-muted">Лабораторные пока не добавлены</p>
-          </div>
+          <EmptyState v-else-if="labs.length === 0" title="Лабораторные пока не добавлены" text="Задания по курсу появятся здесь." />
 
           <div v-else class="space-y-3">
             <div
@@ -129,9 +125,7 @@
             <p class="text-ink-muted">Загрузка...</p>
           </div>
 
-          <div v-else-if="!gradeSheets || gradeSheets.length === 0" class="text-center py-8">
-            <p class="text-ink-muted">Журнал пока не добавлен</p>
-          </div>
+          <EmptyState v-else-if="!gradeSheets || gradeSheets.length === 0" title="Журнал пока не добавлен" text="Ведомость с оценками появится здесь." />
 
           <div v-else class="space-y-3">
             <template v-for="sheet in gradeSheets" :key="sheet.id">
@@ -226,9 +220,7 @@
             <p class="text-ink-muted">Загрузка вопросов...</p>
           </div>
 
-          <div v-else-if="examQuestions.length === 0" class="text-center py-8">
-            <p class="text-ink-muted">Вопросы пока не добавлены</p>
-          </div>
+          <EmptyState v-else-if="examQuestions.length === 0" title="Вопросы пока не добавлены" text="Список вопросов к экзамену появится здесь." />
 
           <div v-else class="space-y-6">
             <div v-for="group in groupedQuestions" :key="group.section">
@@ -319,6 +311,7 @@
 </template>
 
 <script setup lang="ts">
+import EmptyState from '@/components/ui/EmptyState.vue'
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { coursesApi, type Course } from '@/api/courses'

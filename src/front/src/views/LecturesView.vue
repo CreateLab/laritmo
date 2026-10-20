@@ -19,9 +19,7 @@
         <p class="text-ink-muted">Загрузка лекций...</p>
       </div>
 
-      <div v-else-if="lectures.length === 0" class="text-center py-12">
-        <p class="text-ink-muted">Лекции пока не добавлены</p>
-      </div>
+      <EmptyState v-else-if="lectures.length === 0" title="Лекции пока не добавлены" text="Когда преподаватель добавит материалы, они появятся здесь." />
 
       <div v-else class="space-y-3">
         <a
@@ -43,6 +41,7 @@
 </template>
 
 <script setup lang="ts">
+import EmptyState from '@/components/ui/EmptyState.vue'
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { lecturesApi, type Lecture } from '@/api/lectures'

@@ -22,16 +22,11 @@
         <p class="text-ink-muted">Загрузка пользователей...</p>
       </div>
 
-      <div v-else-if="error" class="text-center py-12">
-        <p class="text-danger-text">{{ error }}</p>
-        <AppButton variant="primary" class="mt-4" @click="loadUsers">
-          Попробовать снова
-        </AppButton>
-      </div>
+      <EmptyState v-else-if="error" title="Не удалось загрузить пользователей" :text="error">
+        <AppButton variant="primary" icon="pi-refresh" @click="loadUsers">Попробовать снова</AppButton>
+      </EmptyState>
 
-      <div v-else-if="users.length === 0" class="text-center py-12">
-        <p class="text-ink-muted">Пользователи не найдены</p>
-      </div>
+      <EmptyState v-else-if="users.length === 0" title="Пользователи не найдены" />
 
       <div v-else class="table-wrap">
         <table class="data-table">
@@ -93,6 +88,7 @@
 </template>
 
 <script setup lang="ts">
+import EmptyState from '@/components/ui/EmptyState.vue'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { usersApi, type User } from '@/api/users'
