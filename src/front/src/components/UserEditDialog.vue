@@ -7,15 +7,14 @@
       @hide="onHide"
   >
     <!-- Предупреждение для owner -->
-    <div v-if="user?.role === 'owner'" class="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-600 rounded-lg">
-      <p class="text-yellow-800 dark:text-yellow-200 text-sm">
-        ⚠️ Учётную запись владельца нельзя редактировать
-      </p>
+    <div v-if="user?.role === 'owner'" class="alert mb-4">
+      <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+      <span>Учётную запись владельца нельзя редактировать</span>
     </div>
 
     <form @submit.prevent="handleSubmit" class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1 transition-colors duration-300">
+        <label class="field-label">
           Username
         </label>
         <input
@@ -23,12 +22,12 @@
             type="text"
             required
             :disabled="!!user"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green dark:focus:ring-forest-green-dark bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text transition-colors duration-300 disabled:bg-gray-100 dark:disabled:bg-dark-surface disabled:cursor-not-allowed"
+            class="field"
         />
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1 transition-colors duration-300">
+        <label class="field-label">
           Email
         </label>
         <input
@@ -36,12 +35,12 @@
             type="email"
             required
             :disabled="isOwner"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green dark:focus:ring-forest-green-dark bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text transition-colors duration-300 disabled:bg-gray-100 dark:disabled:bg-dark-surface disabled:cursor-not-allowed"
+            class="field"
         />
       </div>
 
       <div v-if="!user">
-        <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1 transition-colors duration-300">
+        <label class="field-label">
           Пароль
         </label>
         <input
@@ -50,19 +49,19 @@
             required
             minlength="8"
             placeholder="Минимум 8 символов"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green dark:focus:ring-forest-green-dark bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text transition-colors duration-300"
+            class="field"
         />
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1 transition-colors duration-300">
+        <label class="field-label">
           Роль
         </label>
         <select
             v-model="form.role"
             required
             :disabled="isOwner"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green dark:focus:ring-forest-green-dark bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text transition-colors duration-300 disabled:bg-gray-100 dark:disabled:bg-dark-surface disabled:cursor-not-allowed"
+            class="field"
         >
           <option value="admin">Администратор</option>
           <option value="student">Студент</option>
@@ -75,22 +74,23 @@
             v-model="form.is_active"
             type="checkbox"
             :disabled="isOwner"
-            class="w-4 h-4 rounded border-gray-300 dark:border-dark-border text-forest-green focus:ring-forest-green dark:focus:ring-forest-green-dark disabled:cursor-not-allowed"
+            class="w-4 h-4 rounded border-border text-action disabled:cursor-not-allowed"
         />
-        <label for="is_active" class="text-sm font-medium text-gray-700 dark:text-dark-text-secondary transition-colors duration-300">
+        <label for="is_active" class="text-sm font-medium text-ink-muted">
           Активен
         </label>
       </div>
 
-      <div v-if="error" class="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/30 p-3 rounded-lg transition-colors duration-300">
-        {{ error }}
+      <div v-if="error" class="alert">
+        <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+        <span>{{ error }}</span>
       </div>
 
       <div class="flex justify-end gap-2 pt-4">
         <button
             type="button"
             @click="visible = false"
-            class="px-4 py-2 text-sm bg-gray-100 dark:bg-dark-surface hover:bg-gray-200 dark:hover:bg-dark-border rounded-lg transition-colors duration-300 text-gray-700 dark:text-dark-text"
+            class="btn btn-secondary"
         >
           Отмена
         </button>
@@ -98,7 +98,7 @@
             v-if="!isOwner"
             type="submit"
             :disabled="loading"
-            class="px-4 py-2 text-sm bg-forest-green dark:bg-forest-green-dark text-white hover:bg-forest-dark dark:hover:bg-forest-green rounded-lg disabled:opacity-50 transition-colors duration-300"
+            class="btn btn-primary"
         >
           {{ loading ? 'Сохранение...' : 'Сохранить' }}
         </button>

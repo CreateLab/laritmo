@@ -38,6 +38,11 @@ const router = createRouter({
             name: 'admin-users',
             component: () => import('@/views/UsersView.vue'),
         },
+        {
+            path: '/:pathMatch(.*)*',
+            name: 'not-found',
+            component: () => import('@/views/NotFoundView.vue'),
+        },
     ],
 })
 

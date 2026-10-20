@@ -1,99 +1,110 @@
 <template>
-  <div class="min-h-screen p-6">
-    <header class="mb-8">
-      <button
-          @click="goBack()"
-          class="text-forest-green dark:text-forest-green-dark hover:text-forest-dark dark:hover:text-forest-green mb-4 flex items-center gap-2 transition-colors duration-300"
+  <div class="page px-4 sm:px-6 md:px-10 py-4 sm:py-12">
+    <div class="grid gap-8 items-start xl:grid-cols-[14rem_minmax(0,72ch)_18rem] xl:justify-center">
+      <a
+          href="#"
+          @click.prevent="goBack()"
+          class="text-action hover:text-action-hover text-body-sm no-underline inline-flex items-center gap-2 min-h-11 xl:col-span-3 justify-self-start"
       >
-        ← Назад к курсу
-      </button>
+        <i class="pi pi-arrow-left" aria-hidden="true"></i>
+        Назад к курсу
+      </a>
 
-      <nav v-if="allLabs.length > 1" class="mb-4 flex items-center gap-2">
-        <button
-            @click="goToLab(prevLab)"
-            :disabled="!prevLab"
-            class="px-3 py-2 rounded-lg bg-white dark:bg-dark-surface text-forest-green dark:text-forest-green-dark shadow disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-300"
-        >
-          ← Предыдущая
-        </button>
-        <select
-            :value="labId"
-            @change="goToLab(allLabs.find(l => l.id === Number(($event.target as HTMLSelectElement).value)) ?? null)"
-            class="flex-1 min-w-0 px-3 py-2 rounded-lg bg-white dark:bg-dark-surface text-forest-dark dark:text-dark-text shadow transition-colors duration-300"
-        >
-          <option v-for="l in allLabs" :key="l.id" :value="l.id">
-            Лаба #{{ l.number }} — {{ l.title }}
-          </option>
-        </select>
-        <button
-            @click="goToLab(nextLab)"
-            :disabled="!nextLab"
-            class="px-3 py-2 rounded-lg bg-white dark:bg-dark-surface text-forest-green dark:text-forest-green-dark shadow disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-300"
-        >
-          Следующая →
-        </button>
-      </nav>
+      <aside class="hidden xl:block sticky top-24 self-start" aria-label="Оглавление">
+        <nav v-if="tocItems.length >= 3" class="border-l border-border">
+          <p class="text-label text-ink-muted pl-4 mb-2">Содержание</p>
+          <a
+              v-for="item in tocItems"
+              :key="item.id"
+              :href="`#${item.id}`"
+              @click.prevent="scrollToSection(item.id)"
+              :class="[
+                'block py-1 text-body-sm no-underline -ml-px border-l-2 transition-colors duration-150',
+                item.level === 3 ? 'pl-8' : 'pl-4',
+                item.id === activeTocId ? 'border-action text-ink font-medium' : 'border-transparent text-ink-muted hover:text-ink'
+              ]"
+          >{{ item.text }}</a>
+        </nav>
+      </aside>
 
-      <div v-if="loading" class="animate-pulse">
-        <div class="h-8 bg-gray-200 dark:bg-dark-surface rounded w-3/4 mb-4"></div>
-        <div class="h-4 bg-gray-200 dark:bg-dark-surface rounded w-1/4"></div>
-      </div>
-
-      <div v-else-if="lab">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="px-3 py-1 bg-forest-green dark:bg-forest-green-dark text-white rounded-full text-sm transition-colors duration-300">
-            Лаба #{{ lab.number }}
-          </span>
-          <span class="px-3 py-1 bg-gray-200 dark:bg-dark-surface text-gray-700 dark:text-dark-text-secondary rounded-full text-sm transition-colors duration-300">
-            Макс. {{ lab.max_score }} баллов
-          </span>
-          <span v-if="lab.deadline" class="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full text-sm transition-colors duration-300">
-            Дедлайн: {{ formatDate(lab.deadline) }}
-          </span>
+      <main class="min-w-0 mx-auto w-full" style="max-width: 72ch">
+        <div v-if="loading" class="text-center py-12">
+          <p class="text-ink-muted">Загрузка лабораторной...</p>
         </div>
-        <h1 class="text-3xl font-bold text-forest-dark dark:text-dark-text mb-2 transition-colors duration-300">{{ lab.title }}</h1>
-        <a
-            v-if="lab.github_url"
-            :href="lab.github_url"
-            target="_blank"
-            class="text-sm text-forest-green dark:text-forest-green-dark hover:underline flex items-center gap-1 transition-colors duration-300"
-        >
-          <i class="pi pi-github"></i>
+
+        <EmptyState v-else-if="!lab" title="Лабораторная работа не найдена" text="Возможно, она была удалена или ссылка устарела." />
+
+        <article v-else class="bg-surface border border-border border-x-0 rounded-none -mx-4 sm:mx-0 sm:border-x sm:rounded-lg p-4 sm:p-6 xl:p-8">
+          <h1 class="lecture-title mb-3 sm:mb-4">{{ lab.title }}</h1>
+          <div class="xl:hidden flex flex-wrap items-center gap-2 mb-3 sm:mb-4">
+            <AppChip>Макс. {{ lab.max_score }} баллов</AppChip>
+            <AppChip v-if="lab.deadline">Дедлайн: {{ formatDate(lab.deadline) }}</AppChip>
+          </div>
+          <div class="xl:hidden flex flex-wrap items-center gap-x-4 gap-y-1 mb-4 sm:mb-6">
+            <a v-if="lab.github_url" :href="lab.github_url" target="_blank" rel="noopener" class="inline-flex items-center gap-2 min-h-11 text-body-sm text-action hover:text-action-hover no-underline">
+              <i class="pi pi-github" aria-hidden="true"></i>
+              Открыть на GitHub
+            </a>
+            <template v-if="authStore.isAdmin">
+              <AppButton class="min-h-11" icon="pi-pencil" @click="editLab">Редактировать</AppButton>
+              <AppButton class="min-h-11" variant="danger" icon="pi-trash" @click="deleteLab">Удалить</AppButton>
+            </template>
+          </div>
+          <div ref="proseRef" class="lecture-prose" v-html="renderedContent"></div>
+        </article>
+        <nav v-if="allLabs.length > 1" class="xl:hidden grid grid-cols-2 gap-3 mt-4" aria-label="Переключение">
+          <button
+              v-if="prevLab"
+              type="button"
+              class="btn btn-secondary !h-auto min-h-11 py-2 flex-col !items-start !gap-0 min-w-0 text-left"
+              @click="goToLab(prevLab)"
+          >
+            <span class="text-label">← Предыдущая</span>
+            <span class="text-body-sm text-ink-muted max-w-full truncate" :title="prevLab.title">{{ prevLab.title }}</span>
+          </button>
+          <span v-else></span>
+          <button
+              v-if="nextLab"
+              type="button"
+              class="btn btn-secondary !h-auto min-h-11 py-2 flex-col !items-end !gap-0 min-w-0 text-right"
+              @click="goToLab(nextLab)"
+          >
+            <span class="text-label">Следующая →</span>
+            <span class="text-body-sm text-ink-muted max-w-full truncate" :title="nextLab.title">{{ nextLab.title }}</span>
+          </button>
+          <span v-else></span>
+        </nav>
+      </main>
+
+      <aside v-if="lab" class="hidden xl:flex flex-col gap-3 sticky top-24 self-start">
+        <div v-if="allLabs.length > 1" class="flex flex-col gap-2">
+          <p class="text-label text-ink-muted">Лабораторные</p>
+          <select
+              :value="labId"
+              @change="goToLab(allLabs.find(l => l.id === Number(($event.target as HTMLSelectElement).value)) ?? null)"
+              class="field w-full min-w-0 truncate" :title="lab?.title"
+          >
+            <option v-for="l in allLabs" :key="l.id" :value="l.id" :title="l.title">
+              {{ l.title }}
+            </option>
+          </select>
+          <AppButton @click="goToLab(prevLab)" :disabled="!prevLab">← Предыдущая</AppButton>
+          <AppButton @click="goToLab(nextLab)" :disabled="!nextLab">Следующая →</AppButton>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <AppChip>Макс. {{ lab.max_score }} баллов</AppChip>
+          <AppChip v-if="lab.deadline">Дедлайн: {{ formatDate(lab.deadline) }}</AppChip>
+        </div>
+        <a v-if="lab.github_url" :href="lab.github_url" target="_blank" rel="noopener" class="btn btn-secondary">
+          <i class="pi pi-github" aria-hidden="true"></i>
           Открыть на GitHub
         </a>
-      </div>
-
-      <div v-if="authStore.isAdmin" class="flex gap-4 mt-4">
-        <button
-            @click="editLab"
-            class="px-4 py-2 bg-forest-green dark:bg-forest-green-dark text-white rounded-lg hover:bg-forest-dark dark:hover:bg-forest-green transition-colors duration-300"
-        >
-          ✏️ Редактировать
-        </button>
-        <button
-            @click="deleteLab"
-            class="px-4 py-2 bg-red-500 dark:bg-red-600 text-white rounded-lg hover:bg-red-600 dark:hover:bg-red-700 transition-colors duration-300"
-        >
-          🗑️ Удалить
-        </button>
-      </div>
-    </header>
-
-    <main>
-      <div v-if="loading" class="text-center py-12">
-        <p class="text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Загрузка лабораторной...</p>
-      </div>
-
-      <div v-else-if="!lab" class="text-center py-12">
-        <p class="text-red-600 dark:text-red-400 transition-colors duration-300">Лабораторная работа не найдена</p>
-      </div>
-
-      <div
-          v-else
-          class="bg-white dark:bg-dark-surface rounded-xl shadow-md dark:shadow-lg p-8 prose prose-slate max-w-none markdown-content transition-colors duration-300"
-          v-html="renderedContent"
-      ></div>
-    </main>
+        <template v-if="authStore.isAdmin">
+          <AppButton icon="pi-pencil" @click="editLab">Редактировать</AppButton>
+          <AppButton variant="danger" icon="pi-trash" @click="deleteLab">Удалить</AppButton>
+        </template>
+      </aside>
+    </div>
 
     <LabEditDialog
         v-model="showEditDialog"
@@ -105,14 +116,17 @@
 </template>
 
 <script setup lang="ts">
+import EmptyState from '@/components/ui/EmptyState.vue'
 import { ref, onMounted, computed, watch } from 'vue'
+import { useToc } from '@/composables/useToc'
 import { useRoute, useRouter } from 'vue-router'
 import { labsApi, type Lab } from '@/api/labs'
 import { marked, Renderer } from 'marked'
 import hljs from 'highlight.js'
-import 'highlight.js/styles/github.css'
 import { useAuthStore } from '@/stores/auth'
 import LabEditDialog from '@/components/LabEditDialog.vue'
+import AppButton from '@/components/ui/AppButton.vue'
+import AppChip from '@/components/ui/AppChip.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -120,6 +134,7 @@ const lab = ref<Lab | null>(null)
 const loading = ref(true)
 const authStore = useAuthStore()
 const showEditDialog = ref(false)
+const proseRef = ref<HTMLElement | null>(null)
 
 const courseId = route.params.courseId
 const labId = computed(() => Number(route.params.id))
@@ -213,6 +228,8 @@ const loadLabList = async () => {
   }
 }
 
+const { items: tocItems, activeId: activeTocId, scrollTo: scrollToSection } = useToc(proseRef, () => renderedContent.value)
+
 onMounted(() => {
   loadLab()
   loadLabList()
@@ -224,65 +241,3 @@ watch(labId, () => {
 })
 </script>
 
-<style scoped>
-.markdown-content {
-  line-height: 1.7;
-}
-
-.markdown-content :deep(h1) {
-  @apply text-3xl font-bold text-forest-dark dark:text-dark-text mt-8 mb-4;
-}
-
-.markdown-content :deep(h2) {
-  @apply text-2xl font-semibold text-forest-dark dark:text-dark-text mt-6 mb-3;
-}
-
-.markdown-content :deep(h3) {
-  @apply text-xl font-semibold text-forest-dark dark:text-dark-text mt-4 mb-2;
-}
-
-.markdown-content :deep(p) {
-  @apply mb-4 text-gray-700 dark:text-dark-text-secondary;
-}
-
-.markdown-content :deep(ul),
-.markdown-content :deep(ol) {
-  @apply mb-4 ml-6;
-}
-
-.markdown-content :deep(li) {
-  @apply mb-2;
-}
-
-.markdown-content :deep(code) {
-  @apply bg-gray-100 dark:bg-dark-bg px-2 py-1 rounded text-sm font-mono;
-}
-
-.markdown-content :deep(pre) {
-  @apply bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-dark-text p-4 rounded-lg overflow-x-auto mb-4 shadow-sm;
-}
-
-.markdown-content :deep(pre code) {
-  @apply bg-transparent p-0 text-gray-900 dark:text-dark-text;
-}
-
-.markdown-content :deep(a) {
-  @apply text-forest-green dark:text-forest-green-dark hover:underline;
-}
-
-.markdown-content :deep(blockquote) {
-  @apply border-l-4 border-forest-green dark:border-forest-green-dark pl-4 italic my-4 text-gray-600 dark:text-dark-text-secondary;
-}
-
-.markdown-content :deep(table) {
-  @apply w-full mb-4 border-collapse;
-}
-
-.markdown-content :deep(th) {
-  @apply bg-forest-green dark:bg-forest-green-dark text-white p-2 text-left;
-}
-
-.markdown-content :deep(td) {
-  @apply border border-gray-300 dark:border-dark-border p-2;
-}
-</style>

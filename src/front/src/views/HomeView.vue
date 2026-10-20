@@ -1,49 +1,44 @@
 <template>
-  <div class="min-h-screen p-6">
-    <header class="mb-8">
-      <h1 class="text-4xl font-bold text-forest-dark dark:text-dark-text flex items-center gap-2 transition-colors duration-300">
-        <span class="frog-animation">🐸</span> Laritmo
-      </h1>
-    </header>
-
-    <main>
-      <h2 class="text-2xl font-semibold mb-6 flex items-center gap-2 text-forest-dark dark:text-dark-text transition-colors duration-300">
-        🍄 Мои курсы
-      </h2>
-
-      <button
-          v-if="authStore.isAdmin"
-          @click="showCreateDialog = true"
-          class="flex gap-6 mb-8 px-4 py-2 bg-forest-green dark:bg-forest-green-dark text-white rounded-lg hover:bg-forest-dark dark:hover:bg-forest-green transition-colors duration-300"
-      >
-        ➕ Добавить курс
-      </button>
+  <div class="flex-1">
+    <main class="page py-12">
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <h1 class="text-h1">Мои курсы</h1>
+        <AppButton v-if="authStore.isAdmin" variant="primary" icon="pi-plus" @click="showCreateDialog = true">
+          Добавить курс
+        </AppButton>
+      </div>
 
       <div v-if="loading" class="text-center py-12">
-        <p class="text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Загрузка курсов...</p>
+        <p class="text-ink-muted">Загрузка курсов...</p>
       </div>
 
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div
+      <EmptyState v-else-if="loadError" title="Не удалось загрузить курсы" text="Сервер недоступен или вернул неожиданный ответ. Проверьте, что API запущен.">
+        <AppButton variant="primary" icon="pi-refresh" @click="handleCourseSaved">Попробовать снова</AppButton>
+      </EmptyState>
+
+      <EmptyState v-else-if="courses.length === 0" title="Курсов пока нет" :text="authStore.isAdmin ? 'Создайте первый курс кнопкой «Добавить курс».' : 'Когда курсы появятся, они будут здесь.'" />
+
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-6">
+        <a
             v-for="course in courses"
             :key="course.id"
-            @click="goToCourse(course.id)"
-            class="bg-white dark:bg-dark-surface rounded-xl shadow-md dark:shadow-lg p-6 hover:shadow-lg dark:hover:shadow-xl transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-forest-mint dark:hover:border-forest-mint-dark"
+            :href="`/courses/${course.id}`"
+            @click.prevent="goToCourse(course.id)"
+            class="card no-underline text-ink flex flex-col min-h-[11rem] !p-4 sm:!p-6"
         >
-          <div class="text-4xl mb-4">🍄</div>
-          <h3 class="text-xl font-semibold mb-2 text-forest-dark dark:text-dark-text transition-colors duration-300">
-            {{ course.name }}
-          </h3>
-          <p class="text-sm text-gray-600 dark:text-dark-text-secondary mb-4 transition-colors duration-300">{{ course.semester }}</p>
-          <p class="text-sm text-gray-700 dark:text-dark-text-secondary transition-colors duration-300">{{ course.description }}</p>
-        </div>
+          <div class="flex items-center gap-2">
+            <BrandMark />
+            <AppChip>{{ course.semester }}</AppChip>
+          </div>
+          <h3 class="text-h3 text-xl mt-3">{{ course.name }}</h3>
+          <p class="text-body text-ink-muted mt-2 line-clamp-3">{{ course.description }}</p>
+          <span class="mt-auto pt-4 text-label text-action flex items-center gap-1">
+            Открыть <i class="pi pi-arrow-right" aria-hidden="true"></i>
+          </span>
+        </a>
       </div>
     </main>
-    
-    <!-- Floating кнопка переключения темы для неавторизованных пользователей -->
-    <div v-if="!authStore.isAuthenticated" class="fixed bottom-6 right-6 z-50">
-      <ThemeToggle />
-    </div>
+
     
     <CourseEditDialog
         v-model="showCreateDialog"
@@ -53,17 +48,21 @@
 </template>
 
 <script setup lang="ts">
+import EmptyState from '@/components/ui/EmptyState.vue'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { coursesApi, type Course } from '@/api/courses'
 import { useAuthStore } from '@/stores/auth'
 import CourseEditDialog from '@/components/CourseEditDialog.vue'
-import ThemeToggle from '@/components/ThemeToggle.vue'
+import AppButton from '@/components/ui/AppButton.vue'
+import AppChip from '@/components/ui/AppChip.vue'
+import BrandMark from '@/components/ui/BrandMark.vue'
 
 
 const router = useRouter()
 const courses = ref<Course[]>([])
 const loading = ref(true)
+const loadError = ref(false)
 const authStore = useAuthStore()
 const showCreateDialog = ref(false)
 
@@ -73,26 +72,23 @@ const goToCourse = (courseId: number) => {
   })
 }
 
-const handleCourseSaved = async () => {
+const loadCourses = async () => {
   loading.value = true
+  loadError.value = false
   try {
     const { data } = await coursesApi.getAll()
+    if (!Array.isArray(data)) throw new Error('Unexpected response')
     courses.value = data
   } catch (error) {
     console.error('Failed to load courses:', error)
+    courses.value = []
+    loadError.value = true
   } finally {
     loading.value = false
   }
 }
 
-onMounted(async () => {
-  try {
-    const { data } = await coursesApi.getAll()
-    courses.value = data
-  } catch (error) {
-    console.error('Failed to load courses:', error)
-  } finally {
-    loading.value = false
-  }
-})
+const handleCourseSaved = loadCourses
+
+onMounted(loadCourses)
 </script>
