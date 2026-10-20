@@ -4,7 +4,7 @@
       class="backdrop-blur border-b border-border sticky top-0 z-10"
       style="background: color-mix(in srgb, var(--surface) 90%, transparent)"
   >
-    <div class="max-w-page mx-auto px-4 sm:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
+    <div class="page py-3 flex flex-wrap items-center justify-between gap-3">
       <RouterLink to="/" class="flex items-center gap-2 text-ink no-underline">
         <BrandMark stem :size="22" />
         <span class="text-h3">Laritmo</span>

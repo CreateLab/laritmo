@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-page mx-auto px-4 sm:px-8 py-8 sm:py-12">
+  <div class="page py-8 sm:py-12">
     <header class="mb-8">
       <button
           @click="router.push('/')"

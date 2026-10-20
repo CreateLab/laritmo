@@ -1,7 +1,19 @@
 <template>
-  <AppHeader v-if="!isAuthPage" />
-  <HeaderStrip v-if="!isAuthPage" />
-  <RouterView />
+  <div class="min-h-screen flex flex-col">
+    <AppHeader v-if="!isAuthPage" />
+    <HeaderStrip v-if="!isAuthPage" />
+    <div class="flex-1 flex flex-col">
+      <RouterView />
+    </div>
+    <footer class="border-t border-border mt-12">
+      <div class="page py-6 flex flex-wrap items-center justify-between gap-2 text-body-sm text-ink-muted">
+        <span>Laritmo · {{ year }}</span>
+        <a href="https://github.com/CreateLab/laritmo" target="_blank" rel="noopener" class="text-ink-muted underline hover:text-ink">
+          Репозиторий
+        </a>
+      </div>
+    </footer>
+  </div>
   <Toast />
 </template>
 
@@ -15,6 +27,7 @@ import { useThemeStore } from './stores/theme'
 
 const route = useRoute()
 const isAuthPage = computed(() => route.name === 'auth')
+const year = new Date().getFullYear()
 
 const themeStore = useThemeStore()
 onMounted(() => {

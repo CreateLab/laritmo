@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen">
-    <main class="max-w-page mx-auto px-4 sm:px-8 py-12">
+  <div class="flex-1">
+    <main class="page py-12">
       <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
         <h1 class="text-h1">Мои курсы</h1>
         <AppButton v-if="authStore.isAdmin" variant="primary" icon="pi-plus" @click="showCreateDialog = true">

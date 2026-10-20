@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen max-w-page mx-auto px-4 sm:px-8 py-12">
+  <div class="page py-12">
     <header class="mb-8">
       <a
           href="#"

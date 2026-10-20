@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center p-6 relative">
+  <div class="flex-1 flex items-center justify-center p-6 relative">
     <div class="absolute top-4 right-4">
       <ThemeToggle />
     </div>
