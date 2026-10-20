@@ -18,7 +18,7 @@
 
       <EmptyState v-else-if="courses.length === 0" title="Курсов пока нет" :text="authStore.isAdmin ? 'Создайте первый курс кнопкой «Добавить курс».' : 'Когда курсы появятся, они будут здесь.'" />
 
-      <div v-else class="grid gap-6" style="grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr))">
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <a
             v-for="course in courses"
             :key="course.id"
