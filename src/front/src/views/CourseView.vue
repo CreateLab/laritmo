@@ -13,11 +13,22 @@
         <div class="h-4 bg-sunken rounded-sm w-1/4"></div>
       </div>
 
-      <h1 v-else-if="course" class="text-h1 text-ink">{{ course.name }}</h1>
+      <template v-else-if="course">
+        <h1 class="text-h1 text-ink">{{ course.name }}</h1>
+        <!-- только мобильный: то, что на десктопе живёт в карточке «О курсе» -->
+        <div class="sm:hidden mt-3 space-y-3">
+          <AppChip>{{ course.semester }}</AppChip>
+          <p v-if="course.description" class="text-body-sm text-ink-muted line-clamp-2">{{ course.description }}</p>
+          <div v-if="authStore.isAdmin" class="flex gap-2">
+            <AppButton class="min-h-11 flex-1" icon="pi-pencil" @click="editCourse">Редактировать</AppButton>
+            <AppButton class="min-h-11 flex-1" variant="danger" icon="pi-trash" @click="deleteCourse">Удалить</AppButton>
+          </div>
+        </div>
+      </template>
     </header>
 
     <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] items-start">
-    <aside v-if="course" class="order-first lg:order-none lg:col-start-2 lg:row-start-1 lg:sticky lg:top-24">
+    <aside v-if="course" class="hidden sm:block order-first lg:order-none lg:col-start-2 lg:row-start-1 lg:sticky lg:top-24">
       <section class="card space-y-4">
         <h2 class="text-h3 text-ink">О курсе</h2>
         <div><AppChip>{{ course.semester }}</AppChip></div>
@@ -50,11 +61,12 @@
     </aside>
 
     <main class="min-w-0 lg:col-start-1 lg:row-start-1">
-      <TabView v-if="!loading" class="min-h-[24rem]">
+      <TabView v-if="!loading" class="min-h-[24rem]" @tab-change="scrollActiveTabIntoView">
         <TabPanel header="Лекции" value="lectures">
 
           <div v-if="authStore.isAdmin" class="mb-4 flex gap-2 flex-wrap">
             <AppButton
+                class="min-h-11 sm:min-h-0"
                 variant="primary"
                 icon="pi-plus"
                 @click="addLecture"
@@ -74,10 +86,12 @@
                 v-for="lecture in lectures"
                 :key="lecture.id"
                 @click="goToLecture(lecture.id)"
-                class="row-item cursor-pointer py-4"
+                class="row-item cursor-pointer py-4 min-h-14"
             >
-              <AppChip>Неделя {{ lecture.week }}</AppChip>
-              <h3 class="text-lg font-medium text-ink flex-1 min-w-0">{{ lecture.title }}</h3>
+              <div class="flex-1 min-w-0 flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-3">
+                <AppChip>Неделя {{ lecture.week }}</AppChip>
+                <h3 class="text-lg font-medium text-ink min-w-0">{{ lecture.title }}</h3>
+              </div>
               <i class="pi pi-arrow-right text-ink-muted" aria-hidden="true"></i>
             </div>
           </div>
@@ -85,7 +99,7 @@
 
         <TabPanel header="Лабораторные" value="labs">
           <div v-if="authStore.isAdmin" class="mb-4">
-            <AppButton variant="primary" icon="pi-plus" @click="addLab">Добавить лабораторную</AppButton>
+            <AppButton class="min-h-11 sm:min-h-0" variant="primary" icon="pi-plus" @click="addLab">Добавить лабораторную</AppButton>
           </div>
 
           <div v-if="labsLoading" class="text-center py-8">
@@ -99,7 +113,7 @@
                 v-for="lab in labs"
                 :key="lab.id"
                 @click="goToLab(lab.id)"
-                class="row-item cursor-pointer py-4"
+                class="row-item cursor-pointer py-4 min-h-14"
             >
               <div class="flex-1 min-w-0">
                 <div class="flex flex-wrap items-center gap-2 mb-2">
@@ -326,7 +340,7 @@
 
 <script setup lang="ts">
 import EmptyState from '@/components/ui/EmptyState.vue'
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { coursesApi, type Course } from '@/api/courses'
 import { lecturesApi, type Lecture } from '@/api/lectures'
@@ -357,6 +371,15 @@ const gradeSheets = ref<GradeSheet[]>([])
 const examQuestions = ref<ExamQuestion[]>([])
 
 const loading = ref(true)
+
+// на мобильном вкладки скроллятся по горизонтали: активную показываем в видимой области
+const scrollActiveTabIntoView = async () => {
+  await nextTick()
+  document
+    .querySelector('.p-tabview-tablist-item-active')
+    ?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
+}
+watch(loading, (v) => { if (!v) scrollActiveTabIntoView() })
 const lecturesLoading = ref(true)
 const exportingLectures = ref(false)
 const labsLoading = ref(true)
