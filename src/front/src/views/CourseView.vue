@@ -13,42 +13,53 @@
         <div class="h-4 bg-sunken rounded-sm w-1/4"></div>
       </div>
 
-      <div v-else-if="course" class="flex flex-wrap items-start justify-between gap-4">
-        <div class="min-w-0">
-          <div class="flex flex-wrap items-center gap-3 mb-2">
-            <h1 class="text-h1 text-ink">{{ course.name }}</h1>
-            <AppChip>{{ course.semester }}</AppChip>
-          </div>
-          <p class="text-ink-muted">{{ course.description }}</p>
-        </div>
-
-        <div v-if="authStore.isAdmin" class="flex items-center gap-2">
-          <AppButton icon="pi-pencil" @click="editCourse">Редактировать</AppButton>
-          <AppButton variant="danger" icon="pi-trash" @click="deleteCourse">Удалить</AppButton>
-        </div>
-      </div>
+      <h1 v-else-if="course" class="text-h1 text-ink">{{ course.name }}</h1>
     </header>
 
-    <main>
-      <TabView v-if="!loading">
+    <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] items-start">
+    <aside v-if="course" class="order-first lg:order-none lg:col-start-2 lg:row-start-1 lg:sticky lg:top-24">
+      <section class="card space-y-4">
+        <h2 class="text-h3 text-ink">О курсе</h2>
+        <div><AppChip>{{ course.semester }}</AppChip></div>
+        <p v-if="course.description" class="text-body text-ink-muted">{{ course.description }}</p>
+        <dl class="text-body text-ink space-y-1">
+          <div class="flex justify-between gap-2">
+            <dt class="text-ink-muted">Лекций</dt>
+            <dd class="font-medium tabular-nums">{{ lectures.length }}</dd>
+          </div>
+          <div class="flex justify-between gap-2">
+            <dt class="text-ink-muted">Лабораторных</dt>
+            <dd class="font-medium tabular-nums">{{ labs.length }}</dd>
+          </div>
+        </dl>
+        <div class="flex flex-col gap-2">
+          <AppButton
+              v-if="authStore.isAuthenticated && lectures.length > 0"
+              icon="pi-download"
+              @click="downloadLecturesMarkdown"
+              :disabled="exportingLectures"
+          >
+            {{ exportingLectures ? 'Скачивание...' : 'Скачать все в Markdown' }}
+          </AppButton>
+          <template v-if="authStore.isAdmin">
+            <AppButton icon="pi-pencil" @click="editCourse">Редактировать</AppButton>
+            <AppButton variant="danger" icon="pi-trash" @click="deleteCourse">Удалить</AppButton>
+          </template>
+        </div>
+      </section>
+    </aside>
+
+    <main class="min-w-0 lg:col-start-1 lg:row-start-1">
+      <TabView v-if="!loading" class="min-h-[24rem]">
         <TabPanel header="Лекции" value="lectures">
 
-          <div class="mb-4 flex gap-2 flex-wrap">
+          <div v-if="authStore.isAdmin" class="mb-4 flex gap-2 flex-wrap">
             <AppButton
-                v-if="authStore.isAdmin"
                 variant="primary"
                 icon="pi-plus"
                 @click="addLecture"
             >
               Добавить лекцию
-            </AppButton>
-            <AppButton
-                v-if="authStore.isAuthenticated && lectures.length > 0"
-                icon="pi-download"
-                @click="downloadLecturesMarkdown"
-                :disabled="exportingLectures"
-            >
-              {{ exportingLectures ? 'Скачивание...' : 'Скачать все в Markdown' }}
             </AppButton>
           </div>
 
@@ -63,10 +74,11 @@
                 v-for="lecture in lectures"
                 :key="lecture.id"
                 @click="goToLecture(lecture.id)"
-                class="row-item cursor-pointer"
+                class="row-item cursor-pointer py-4"
             >
               <AppChip>Неделя {{ lecture.week }}</AppChip>
-              <h3 class="text-body font-medium text-ink">{{ lecture.title }}</h3>
+              <h3 class="text-lg font-medium text-ink flex-1 min-w-0">{{ lecture.title }}</h3>
+              <i class="pi pi-arrow-right text-ink-muted" aria-hidden="true"></i>
             </div>
           </div>
         </TabPanel>
@@ -87,7 +99,7 @@
                 v-for="lab in labs"
                 :key="lab.id"
                 @click="goToLab(lab.id)"
-                class="row-item cursor-pointer items-start"
+                class="row-item cursor-pointer py-4"
             >
               <div class="flex-1 min-w-0">
                 <div class="flex flex-wrap items-center gap-2 mb-2">
@@ -101,11 +113,12 @@
                     Дедлайн: {{ formatDate(lab.deadline) }}
                   </span>
                 </div>
-                <h3 class="text-body font-medium text-ink mb-1">{{ lab.title }}</h3>
-                <p class="text-body-sm text-ink-muted line-clamp-2">
+                <h3 class="text-lg font-medium text-ink mb-1">{{ lab.title }}</h3>
+                <p class="text-body text-ink-muted line-clamp-2">
                   {{ lab.description.substring(0, 150) }}...
                 </p>
               </div>
+              <i class="pi pi-arrow-right text-ink-muted" aria-hidden="true"></i>
             </div>
           </div>
         </TabPanel>
@@ -259,6 +272,7 @@
         </TabPanel>
       </TabView>
     </main>
+    </div>
 
     <CourseEditDialog
         v-model="showEditDialog"

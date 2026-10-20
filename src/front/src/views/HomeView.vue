@@ -18,20 +18,23 @@
 
       <EmptyState v-else-if="courses.length === 0" title="Курсов пока нет" :text="authStore.isAdmin ? 'Создайте первый курс кнопкой «Добавить курс».' : 'Когда курсы появятся, они будут здесь.'" />
 
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
         <a
             v-for="course in courses"
             :key="course.id"
             :href="`/courses/${course.id}`"
             @click.prevent="goToCourse(course.id)"
-            class="card no-underline text-ink"
+            class="card no-underline text-ink flex flex-col min-h-[11rem]"
         >
           <div class="flex items-center gap-2">
             <BrandMark />
             <AppChip>{{ course.semester }}</AppChip>
           </div>
-          <h3 class="text-h3 mt-3">{{ course.name }}</h3>
-          <p class="text-body-sm text-ink-muted">{{ course.description }}</p>
+          <h3 class="text-h3 text-xl mt-3">{{ course.name }}</h3>
+          <p class="text-body text-ink-muted mt-2 line-clamp-3">{{ course.description }}</p>
+          <span class="mt-auto pt-4 text-label text-action flex items-center gap-1">
+            Открыть <i class="pi pi-arrow-right" aria-hidden="true"></i>
+          </span>
         </a>
       </div>
     </main>
