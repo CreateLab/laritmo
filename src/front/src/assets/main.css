@@ -178,6 +178,7 @@
 .p-tabview-tablist-item-active .p-tabview-tab-header { color: var(--ink); border-bottom: 2px solid var(--action); }
 .p-tabview .p-tabview-ink-bar { display: none; }
 .p-tabview .p-tabview-panels, .p-tabview .p-tabview-panel { background: transparent; color: var(--ink); }
+.p-tabview .p-tabview-panel { padding: 0; }
 .p-tabview-panels { padding: 1.5rem 0 0; }
 .p-tabview-prev-button, .p-tabview-next-button { background: var(--surface); color: var(--ink); }
 

@@ -39,10 +39,6 @@
       </div>
     </main>
 
-    <!-- Floating кнопка переключения темы для неавторизованных пользователей -->
-    <div v-if="!authStore.isAuthenticated" class="fixed bottom-6 right-6 z-50">
-      <ThemeToggle />
-    </div>
     
     <CourseEditDialog
         v-model="showCreateDialog"
@@ -58,7 +54,6 @@ import { useRouter } from 'vue-router'
 import { coursesApi, type Course } from '@/api/courses'
 import { useAuthStore } from '@/stores/auth'
 import CourseEditDialog from '@/components/CourseEditDialog.vue'
-import ThemeToggle from '@/components/ThemeToggle.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppChip from '@/components/ui/AppChip.vue'
 import BrandMark from '@/components/ui/BrandMark.vue'

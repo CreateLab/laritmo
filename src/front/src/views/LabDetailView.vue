@@ -1,31 +1,30 @@
 <template>
   <div class="page py-8 sm:py-12">
-    <a
-        href="#"
-        @click.prevent="goBack()"
-        class="text-action hover:text-action-hover text-body-sm no-underline inline-block mb-4"
-    >
-      ← Назад к курсу
-    </a>
-
-    <!-- переключатель: на узких экранах сверху -->
-    <nav v-if="allLabs.length > 1" class="xl:hidden mb-6 flex items-center gap-2 mx-auto" style="max-width: 72ch">
-      <AppButton @click="goToLab(prevLab)" :disabled="!prevLab">← Предыдущая</AppButton>
-      <select
-          :value="labId"
-          @change="goToLab(allLabs.find(l => l.id === Number(($event.target as HTMLSelectElement).value)) ?? null)"
-          class="field flex-1 min-w-0"
+    <div class="grid gap-8 items-start xl:grid-cols-[14rem_minmax(0,72ch)_18rem] xl:justify-center">
+      <a
+          href="#"
+          @click.prevent="goBack()"
+          class="text-action hover:text-action-hover text-body-sm no-underline inline-block xl:col-span-3 justify-self-start"
       >
-        <option v-for="l in allLabs" :key="l.id" :value="l.id">
-          Лаба #{{ l.number }} — {{ l.title }}
-        </option>
-      </select>
-      <AppButton @click="goToLab(nextLab)" :disabled="!nextLab">Следующая →</AppButton>
-    </nav>
+        ← Назад к курсу
+      </a>
 
-    <div class="grid gap-8 items-start xl:grid-cols-[14rem_minmax(0,72ch)_14rem] xl:justify-center">
+      <!-- переключатель: на узких экранах сверху -->
+      <nav v-if="allLabs.length > 1" class="xl:hidden flex items-center gap-2 mx-auto" style="max-width: 72ch">
+        <AppButton @click="goToLab(prevLab)" :disabled="!prevLab">← Предыдущая</AppButton>
+        <select
+            :value="labId"
+            @change="goToLab(allLabs.find(l => l.id === Number(($event.target as HTMLSelectElement).value)) ?? null)"
+            class="field flex-1 min-w-0"
+        >
+          <option v-for="l in allLabs" :key="l.id" :value="l.id">
+            Лаба #{{ l.number }} — {{ l.title }}
+          </option>
+        </select>
+        <AppButton @click="goToLab(nextLab)" :disabled="!nextLab">Следующая →</AppButton>
+      </nav>
       <aside class="hidden xl:block sticky top-24 self-start" aria-label="Оглавление">
-        <nav v-if="tocItems.length" class="border-l border-border">
+        <nav v-if="tocItems.length >= 3" class="border-l border-border">
           <p class="text-label text-ink-muted pl-4 mb-2">Содержание</p>
           <a
               v-for="item in tocItems"
@@ -49,12 +48,12 @@
         <EmptyState v-else-if="!lab" title="Лабораторная работа не найдена" text="Возможно, она была удалена или ссылка устарела." />
 
         <article v-else class="bg-surface border border-border rounded-lg p-6 sm:p-8">
-          <div class="flex flex-wrap items-center gap-2">
+          <div class="xl:hidden flex flex-wrap items-center gap-2">
             <AppChip>Лаба #{{ lab.number }}</AppChip>
             <AppChip>Макс. {{ lab.max_score }} баллов</AppChip>
             <AppChip v-if="lab.deadline">Дедлайн: {{ formatDate(lab.deadline) }}</AppChip>
           </div>
-          <h1 class="text-h1 mt-3 mb-4">{{ lab.title }}</h1>
+          <h1 class="text-h1 mt-3 xl:mt-0 mb-4">{{ lab.title }}</h1>
           <div class="xl:hidden flex flex-wrap gap-2 mb-6">
             <a v-if="lab.github_url" :href="lab.github_url" target="_blank" rel="noopener" class="btn btn-secondary">
               <i class="pi pi-github" aria-hidden="true"></i>
@@ -91,7 +90,7 @@
               class="field w-full min-w-0"
           >
             <option v-for="l in allLabs" :key="l.id" :value="l.id">
-              Лаба #{{ l.number }} — {{ l.title }}
+              Лаба #{{ l.number }}
             </option>
           </select>
           <AppButton @click="goToLab(prevLab)" :disabled="!prevLab">← Предыдущая</AppButton>

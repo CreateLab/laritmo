@@ -8,9 +8,12 @@
     <footer class="border-t border-border mt-12">
       <div class="page py-6 flex flex-wrap items-center justify-between gap-2 text-body-sm text-ink-muted">
         <span>Laritmo · {{ year }}</span>
-        <a href="https://github.com/CreateLab/laritmo" target="_blank" rel="noopener" class="text-ink-muted underline hover:text-ink">
-          Репозиторий
-        </a>
+        <span class="flex items-center gap-4">
+          <a href="https://github.com/CreateLab/laritmo" target="_blank" rel="noopener" class="text-ink-muted underline hover:text-ink">
+            Репозиторий
+          </a>
+          <ThemeToggle v-if="!authStore.isAuthenticated" />
+        </span>
       </div>
     </footer>
   </div>
@@ -22,10 +25,13 @@ import { computed, onMounted } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
 import HeaderStrip from './components/ui/HeaderStrip.vue'
+import ThemeToggle from './components/ThemeToggle.vue'
+import { useAuthStore } from './stores/auth'
 import Toast from 'primevue/toast'
 import { useThemeStore } from './stores/theme'
 
 const route = useRoute()
+const authStore = useAuthStore()
 const isAuthPage = computed(() => route.name === 'auth')
 const year = new Date().getFullYear()
 
