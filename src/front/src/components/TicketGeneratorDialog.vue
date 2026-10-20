@@ -10,41 +10,37 @@
   >
     <div v-if="loading" class="flex flex-col items-center justify-center py-8">
       <ProgressSpinner />
-      <p class="mt-4 text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Генерация билетов...</p>
+      <p class="mt-4 text-ink-muted">Генерация билетов...</p>
     </div>
 
     <div v-else-if="generatedTicket && !isAuthenticated" class="space-y-4">
       <!-- Отображение билета для неавторизованных -->
-      <div class="bg-white dark:bg-dark-surface rounded-lg border border-gray-200 dark:border-dark-border p-6 transition-colors duration-300">
-        <h3 class="text-xl font-bold text-forest-dark dark:text-dark-text mb-4 transition-colors duration-300">
+      <div class="bg-surface rounded-lg border border-border p-6">
+        <h3 class="text-h3 text-ink mb-4">
           Билет № {{ generatedTicket.number }}
         </h3>
         <div class="space-y-4">
           <div
             v-for="(question, index) in generatedTicket.questions"
             :key="index"
-            class="border-l-4 border-forest-green dark:border-forest-green-dark pl-4 py-2 transition-colors duration-300"
+            class="border-l-2 border-action pl-4 py-2"
           >
-            <p class="text-gray-800 dark:text-dark-text font-medium mb-1 transition-colors duration-300">
+            <p class="text-ink font-medium mb-1">
               {{ index + 1 }}. {{ question.question }}
             </p>
-            <p class="text-sm text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">(раздел: {{ question.section }})</p>
+            <p class="text-sm text-ink-muted">(раздел: {{ question.section }})</p>
           </div>
         </div>
       </div>
       <div class="flex justify-end">
-        <Button
-          label="Закрыть"
-          @click="visible = false"
-          outlined
-        />
+        <button type="button" class="btn btn-secondary" @click="visible = false">Закрыть</button>
       </div>
     </div>
 
     <form v-else @submit.prevent="handleSubmit" class="space-y-6">
       <!-- Поле для количества вопросов -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-2 transition-colors duration-300">
+        <label class="field-label">
           Количество вопросов в билете
         </label>
         <InputNumber
@@ -55,14 +51,14 @@
           class="w-full"
           required
         />
-        <p class="mt-1 text-xs text-gray-500 dark:text-dark-text-secondary transition-colors duration-300">
+        <p class="mt-1 text-xs text-ink-muted">
           От 1 до 50 вопросов
         </p>
       </div>
 
       <!-- Поле для количества билетов (только для авторизованных) -->
       <div v-if="isAuthenticated">
-        <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-2 transition-colors duration-300">
+        <label class="field-label">
           Количество билетов
         </label>
         <InputNumber
@@ -73,7 +69,7 @@
           class="w-full"
           required
         />
-        <p class="mt-1 text-xs text-gray-500 dark:text-dark-text-secondary transition-colors duration-300">
+        <p class="mt-1 text-xs text-ink-muted">
           От 1 до 100 билетов
         </p>
       </div>
@@ -89,14 +85,14 @@
           />
           <label
             for="pageBreaks"
-            class="text-sm font-medium text-gray-700 dark:text-dark-text-secondary cursor-pointer transition-colors duration-300"
+            class="text-sm font-medium text-ink-muted cursor-pointer"
           >
             Разбивка по страницам (для печати)
           </label>
         </div>
 
         <div v-if="enablePageBreaks" class="pl-7">
-          <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-2 transition-colors duration-300">
+          <label class="field-label">
             Билетов на страницу
           </label>
           <InputNumber
@@ -109,25 +105,17 @@
         </div>
       </div>
 
-      <div v-if="error" class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4 transition-colors duration-300">
-        <p class="text-red-800 dark:text-red-300 text-sm transition-colors duration-300">{{ error }}</p>
+      <div v-if="error" class="alert">
+        <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+        <span>{{ error }}</span>
       </div>
 
       <div class="flex justify-end gap-3 pt-4">
-        <Button
-          type="button"
-          label="Отмена"
-          @click="visible = false"
-          :disabled="loading"
-          outlined
-        />
-        <Button
-          type="submit"
-          :label="isAuthenticated ? 'Скачать документ' : 'Сгенерировать билет'"
-          :disabled="loading || !isFormValid"
-          :loading="loading"
-          icon="pi pi-file"
-        />
+        <button type="button" class="btn btn-secondary" :disabled="loading" @click="visible = false">Отмена</button>
+        <button type="submit" class="btn btn-primary" :disabled="loading || !isFormValid">
+          <i :class="['pi', loading ? 'pi-spin pi-spinner' : 'pi-file']" aria-hidden="true"></i>
+          {{ isAuthenticated ? 'Скачать документ' : 'Сгенерировать билет' }}
+        </button>
       </div>
     </form>
   </Dialog>
@@ -136,7 +124,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import Dialog from 'primevue/dialog'
-import Button from 'primevue/button'
 import InputNumber from 'primevue/inputnumber'
 import Checkbox from 'primevue/checkbox'
 import ProgressSpinner from 'primevue/progressspinner'

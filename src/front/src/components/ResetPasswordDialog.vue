@@ -6,15 +6,14 @@
       :style="{ width: '400px' }"
       @hide="onHide"
   >
-    <div class="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-600 rounded-lg">
-      <p class="text-yellow-800 dark:text-yellow-200 text-sm">
-        ⚠️ Новый пароль будет установлен пользователю. Убедитесь, что передадите его безопасным способом.
-      </p>
+    <div class="alert mb-4">
+      <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+      <span>Новый пароль будет установлен пользователю. Убедитесь, что передадите его безопасным способом.</span>
     </div>
 
     <form @submit.prevent="handleSubmit" class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1 transition-colors duration-300">
+        <label class="field-label">
           Новый пароль
         </label>
         <input
@@ -23,38 +22,39 @@
             required
             minlength="8"
             placeholder="Минимум 8 символов"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green dark:focus:ring-forest-green-dark bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text transition-colors duration-300"
+            class="field"
         />
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1 transition-colors duration-300">
+        <label class="field-label">
           Подтвердите пароль
         </label>
         <input
             v-model="form.confirmPassword"
             type="password"
             required
-            class="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green dark:focus:ring-forest-green-dark bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text transition-colors duration-300"
+            class="field"
         />
       </div>
 
-      <div v-if="error" class="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/30 p-3 rounded-lg transition-colors duration-300">
-        {{ error }}
+      <div v-if="error" class="alert">
+        <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+        <span>{{ error }}</span>
       </div>
 
       <div class="flex justify-end gap-2 pt-4">
         <button
             type="button"
             @click="visible = false"
-            class="px-4 py-2 text-sm bg-gray-100 dark:bg-dark-surface hover:bg-gray-200 dark:hover:bg-dark-border rounded-lg transition-colors duration-300 text-gray-700 dark:text-dark-text"
+            class="btn btn-secondary"
         >
           Отмена
         </button>
         <button
             type="submit"
             :disabled="loading"
-            class="px-4 py-2 text-sm bg-forest-green dark:bg-forest-green-dark text-white hover:bg-forest-dark dark:hover:bg-forest-green rounded-lg disabled:opacity-50 transition-colors duration-300"
+            class="btn btn-primary"
         >
           {{ loading ? 'Сохранение...' : 'Сбросить пароль' }}
         </button>

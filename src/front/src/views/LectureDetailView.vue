@@ -1,92 +1,53 @@
 <template>
-  <div class="min-h-screen p-6">
+  <div class="min-h-screen max-w-7xl mx-auto px-4 sm:px-8 py-12">
     <header class="mb-8">
-      <button
-          @click="goBack()"
-          class="text-forest-green dark:text-forest-green-dark hover:text-forest-dark dark:hover:text-forest-green mb-4 flex items-center gap-2 transition-colors duration-300"
+      <a
+          href="#"
+          @click.prevent="goBack()"
+          class="text-action hover:text-action-hover text-sm no-underline inline-block mb-4"
       >
         ← Назад к курсу
-      </button>
+      </a>
 
-      <nav v-if="allLectures.length > 1" class="mb-4 flex items-center gap-2">
-        <button
-            @click="goToLecture(prevLecture)"
-            :disabled="!prevLecture"
-            class="px-3 py-2 rounded-lg bg-white dark:bg-dark-surface text-forest-green dark:text-forest-green-dark shadow disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-300"
-        >
-          ← Предыдущая
-        </button>
+      <nav v-if="allLectures.length > 1" class="mb-6 mx-auto flex items-center gap-2" style="max-width: 760px">
+        <AppButton @click="goToLecture(prevLecture)" :disabled="!prevLecture">← Предыдущая</AppButton>
         <select
             :value="lectureId"
             @change="goToLecture(allLectures.find(l => l.id === Number(($event.target as HTMLSelectElement).value)) ?? null)"
-            class="flex-1 min-w-0 px-3 py-2 rounded-lg bg-white dark:bg-dark-surface text-forest-dark dark:text-dark-text shadow transition-colors duration-300"
+            class="field flex-1 min-w-0"
         >
           <option v-for="l in allLectures" :key="l.id" :value="l.id">
             Неделя {{ l.week }} — {{ l.title }}
           </option>
         </select>
-        <button
-            @click="goToLecture(nextLecture)"
-            :disabled="!nextLecture"
-            class="px-3 py-2 rounded-lg bg-white dark:bg-dark-surface text-forest-green dark:text-forest-green-dark shadow disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-300"
-        >
-          Следующая →
-        </button>
+        <AppButton @click="goToLecture(nextLecture)" :disabled="!nextLecture">Следующая →</AppButton>
       </nav>
-
-      <div v-if="loading" class="animate-pulse">
-        <div class="h-8 bg-gray-200 dark:bg-dark-surface rounded w-3/4 mb-4"></div>
-        <div class="h-4 bg-gray-200 dark:bg-dark-surface rounded w-1/4"></div>
-      </div>
-
-      <div v-else-if="lecture">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="px-3 py-1 bg-forest-green dark:bg-forest-green-dark text-white rounded-full text-sm transition-colors duration-300">
-            Неделя {{ lecture.week }}
-          </span>
-        </div>
-        <h1 class="text-3xl font-bold text-forest-dark dark:text-dark-text mb-2 transition-colors duration-300">{{ lecture.title }}</h1>
-        <a
-            v-if="lecture.github_url"
-            :href="lecture.github_url"
-            target="_blank"
-            class="text-sm text-forest-green dark:text-forest-green-dark hover:underline flex items-center gap-1 transition-colors duration-300"
-        >
-          <i class="pi pi-github"></i>
-          Открыть на GitHub
-        </a>
-      </div>
-
-      <div v-if="authStore.isAdmin" class="flex gap-4">
-        <button
-            @click="editLecture"
-            class="px-4 py-2 bg-forest-green dark:bg-forest-green-dark text-white rounded-lg hover:bg-forest-dark dark:hover:bg-forest-green transition-colors duration-300"
-        >
-          ✏️ Редактировать
-        </button>
-        <button
-            @click="deleteLecture"
-            class="px-4 py-2 bg-red-500 dark:bg-red-600 text-white rounded-lg hover:bg-red-600 dark:hover:bg-red-700 transition-colors duration-300"
-        >
-          🗑️ Удалить
-        </button>
-      </div>
     </header>
 
-    <main>
+    <main class="mx-auto" style="max-width: 72ch">
       <div v-if="loading" class="text-center py-12">
-        <p class="text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Загрузка лекции...</p>
+        <p class="text-ink-muted">Загрузка лекции...</p>
       </div>
 
       <div v-else-if="!lecture" class="text-center py-12">
-        <p class="text-red-600 dark:text-red-400 transition-colors duration-300">Лекция не найдена</p>
+        <p class="text-danger-text">Лекция не найдена</p>
       </div>
 
-      <div
-          v-else
-          class="bg-white dark:bg-dark-surface rounded-xl shadow-md dark:shadow-lg p-8 prose prose-slate max-w-none markdown-content transition-colors duration-300"
-          v-html="renderedContent"
-      ></div>
+      <div v-else class="bg-surface border border-border rounded-lg p-8">
+        <AppChip>Неделя {{ lecture.week }}</AppChip>
+        <h1 class="text-h1 mt-3 mb-4">{{ lecture.title }}</h1>
+        <div class="flex flex-wrap gap-2 mb-6">
+          <a v-if="lecture.github_url" :href="lecture.github_url" target="_blank" rel="noopener" class="btn btn-secondary">
+            <i class="pi pi-github" aria-hidden="true"></i>
+            Открыть на GitHub
+          </a>
+          <template v-if="authStore.isAdmin">
+            <AppButton icon="pi-pencil" @click="editLecture">Редактировать</AppButton>
+            <AppButton variant="danger" icon="pi-trash" @click="deleteLecture">Удалить</AppButton>
+          </template>
+        </div>
+        <div class="lecture-prose" v-html="renderedContent"></div>
+      </div>
     </main>
 
     <LectureEditDialog
@@ -104,10 +65,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { lecturesApi, type Lecture } from '@/api/lectures'
 import { marked, Renderer } from 'marked'
 import hljs from 'highlight.js'
-import 'highlight.js/styles/github.css'
 
 import { useAuthStore } from '@/stores/auth'
 import LectureEditDialog from '@/components/LectureEditDialog.vue'
+import AppButton from '@/components/ui/AppButton.vue'
+import AppChip from '@/components/ui/AppChip.vue'
 
 const authStore = useAuthStore()
 const showEditDialog = ref(false)
@@ -211,66 +173,3 @@ watch(lectureId, () => {
   window.scrollTo({ top: 0 })
 })
 </script>
-
-<style scoped>
-.markdown-content {
-  line-height: 1.7;
-}
-
-.markdown-content :deep(h1) {
-  @apply text-3xl font-bold text-forest-dark dark:text-dark-text mt-8 mb-4;
-}
-
-.markdown-content :deep(h2) {
-  @apply text-2xl font-semibold text-forest-dark dark:text-dark-text mt-6 mb-3;
-}
-
-.markdown-content :deep(h3) {
-  @apply text-xl font-semibold text-forest-dark dark:text-dark-text mt-4 mb-2;
-}
-
-.markdown-content :deep(p) {
-  @apply mb-4 text-gray-700 dark:text-dark-text-secondary;
-}
-
-.markdown-content :deep(ul),
-.markdown-content :deep(ol) {
-  @apply mb-4 ml-6;
-}
-
-.markdown-content :deep(li) {
-  @apply mb-2;
-}
-
-.markdown-content :deep(code) {
-  @apply bg-gray-100 dark:bg-dark-bg px-2 py-1 rounded text-sm font-mono;
-}
-
-.markdown-content :deep(pre) {
-  @apply bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-dark-text p-4 rounded-lg overflow-x-auto mb-4 shadow-sm;
-}
-
-.markdown-content :deep(pre code) {
-  @apply bg-transparent p-0 text-gray-900 dark:text-dark-text;
-}
-
-.markdown-content :deep(a) {
-  @apply text-forest-green dark:text-forest-green-dark hover:underline;
-}
-
-.markdown-content :deep(blockquote) {
-  @apply border-l-4 border-forest-green dark:border-forest-green-dark pl-4 italic my-4 text-gray-600 dark:text-dark-text-secondary;
-}
-
-.markdown-content :deep(table) {
-  @apply w-full mb-4 border-collapse;
-}
-
-.markdown-content :deep(th) {
-  @apply bg-forest-green dark:bg-forest-green-dark text-white p-2 text-left;
-}
-
-.markdown-content :deep(td) {
-  @apply border border-gray-300 dark:border-dark-border p-2;
-}
-</style>

@@ -8,42 +8,43 @@
   >
     <form @submit.prevent="handleSubmit" class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1 transition-colors duration-300">URL журнала (Google Sheets)</label>
+        <label class="field-label">URL журнала (Google Sheets)</label>
         <input
             v-model="form.sheet_url"
             type="url"
             required
             placeholder="https://docs.google.com/spreadsheets/d/..."
-            class="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green dark:focus:ring-forest-green-dark bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text transition-colors duration-300"
+            class="field"
         />
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1 transition-colors duration-300">Описание (опционально)</label>
+        <label class="field-label">Описание (опционально)</label>
         <input
             v-model="form.description"
             type="text"
             placeholder="Например: Основной журнал группы"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green dark:focus:ring-forest-green-dark bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text transition-colors duration-300"
+            class="field"
         />
       </div>
 
-      <div v-if="error" class="text-red-600 dark:text-red-400 text-sm transition-colors duration-300">
-        {{ error }}
+      <div v-if="error" class="alert">
+        <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+        <span>{{ error }}</span>
       </div>
 
       <div class="flex justify-end gap-2 pt-4">
         <button
             type="button"
             @click="visible = false"
-            class="px-4 py-2 text-sm bg-gray-100 dark:bg-dark-surface hover:bg-gray-200 dark:hover:bg-dark-border rounded-lg transition-colors duration-300 text-gray-700 dark:text-dark-text"
+            class="btn btn-secondary"
         >
           Отмена
         </button>
         <button
             type="submit"
             :disabled="loading"
-            class="px-4 py-2 text-sm bg-forest-green dark:bg-forest-green-dark text-white hover:bg-forest-dark dark:hover:bg-forest-green rounded-lg disabled:opacity-50 transition-colors duration-300"
+            class="btn btn-primary"
         >
           {{ loading ? 'Сохранение...' : 'Сохранить' }}
         </button>

@@ -1,55 +1,27 @@
 <template>
   <div class="min-h-screen flex items-center justify-center p-6 relative">
-    <!-- Кнопка переключения темы в правом верхнем углу -->
     <div class="absolute top-4 right-4">
       <ThemeToggle />
     </div>
-    
+
     <div class="w-full max-w-md">
-      <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-forest-dark dark:text-dark-text flex items-center justify-center gap-2 transition-colors duration-300">
-          <span class="frog-animation">🐸</span> Laritmo
-        </h1>
+      <div class="flex items-center justify-center gap-3 mb-8">
+        <BrandMark stem :size="32" />
+        <h1 class="text-display">Laritmo</h1>
       </div>
 
-      <div class="bg-white dark:bg-dark-surface rounded-xl shadow-lg p-8 transition-colors duration-300">
-        <h2 class="text-2xl font-semibold mb-6 text-center text-forest-dark dark:text-dark-text transition-colors duration-300">
-          Вход в систему
-        </h2>
+      <div class="bg-surface border border-border rounded-lg shadow-md p-8">
+        <h2 class="text-h2 mb-6 text-center">Вход в систему</h2>
 
         <form @submit.prevent="handleLogin" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1 transition-colors duration-300">Username</label>
-            <input
-                v-model="loginForm.username"
-                type="text"
-                required
-                autofocus
-                class="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green dark:focus:ring-forest-green-dark bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text transition-colors duration-300"
-            />
-          </div>
+          <TextField v-model="loginForm.username" label="Username" type="text" required autofocus />
+          <TextField v-model="loginForm.password" label="Password" type="password" required />
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1 transition-colors duration-300">Password</label>
-            <input
-                v-model="loginForm.password"
-                type="password"
-                required
-                class="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green dark:focus:ring-forest-green-dark bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text transition-colors duration-300"
-            />
-          </div>
+          <AppAlert v-if="loginError">{{ loginError }}</AppAlert>
 
-          <div v-if="loginError" class="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/30 p-3 rounded-lg transition-colors duration-300">
-            {{ loginError }}
-          </div>
-
-          <button
-              type="submit"
-              :disabled="loading"
-              class="w-full px-4 py-2 bg-forest-green dark:bg-forest-green-dark text-white hover:bg-forest-dark dark:hover:bg-forest-green rounded-lg disabled:opacity-50 transition-colors duration-300 font-medium"
-          >
+          <AppButton type="submit" variant="primary" :disabled="loading" class="w-full">
             {{ loading ? 'Вход...' : 'Войти' }}
-          </button>
+          </AppButton>
         </form>
       </div>
     </div>
@@ -61,6 +33,10 @@ import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import AppButton from '@/components/ui/AppButton.vue'
+import AppAlert from '@/components/ui/AppAlert.vue'
+import BrandMark from '@/components/ui/BrandMark.vue'
+import TextField from '@/components/ui/TextField.vue'
 
 const authStore = useAuthStore()
 const router = useRouter()

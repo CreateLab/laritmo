@@ -1,124 +1,78 @@
 <template>
-  <div class="min-h-screen p-6">
+  <div class="min-h-screen max-w-7xl mx-auto px-4 sm:px-8 py-12">
     <header class="mb-8">
-      <button
-          @click="router.push('/')"
-          class="text-forest-green dark:text-forest-green-dark hover:text-forest-dark dark:hover:text-forest-green mb-4 flex items-center gap-2 transition-colors duration-300"
+      <a
+          href="#"
+          @click.prevent="router.push('/')"
+          class="text-action hover:text-action-hover text-sm no-underline inline-block mb-4"
       >
         ← На главную
-      </button>
+      </a>
 
-      <div class="flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-forest-dark dark:text-dark-text transition-colors duration-300">
-          👥 Управление пользователями
-        </h1>
-        <button
-            @click="handleCreate"
-            class="px-4 py-2 bg-forest-green dark:bg-forest-green-dark text-white rounded-lg hover:bg-forest-dark dark:hover:bg-forest-green transition-colors duration-300"
-        >
-          ➕ Добавить пользователя
-        </button>
+      <div class="flex flex-wrap justify-between items-center gap-4">
+        <h1 class="text-h1">Управление пользователями</h1>
+        <AppButton variant="primary" icon="pi-plus" @click="handleCreate">
+          Добавить пользователя
+        </AppButton>
       </div>
     </header>
 
     <main>
       <div v-if="loading" class="text-center py-12">
-        <p class="text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Загрузка пользователей...</p>
+        <p class="text-ink-muted">Загрузка пользователей...</p>
       </div>
 
       <div v-else-if="error" class="text-center py-12">
-        <p class="text-red-600 dark:text-red-400 transition-colors duration-300">{{ error }}</p>
-        <button
-            @click="loadUsers"
-            class="mt-4 px-4 py-2 bg-forest-green dark:bg-forest-green-dark text-white rounded-lg hover:bg-forest-dark dark:hover:bg-forest-green transition-colors duration-300"
-        >
+        <p class="text-danger-text">{{ error }}</p>
+        <AppButton variant="primary" class="mt-4" @click="loadUsers">
           Попробовать снова
-        </button>
+        </AppButton>
       </div>
 
       <div v-else-if="users.length === 0" class="text-center py-12">
-        <p class="text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">Пользователи не найдены</p>
+        <p class="text-ink-muted">Пользователи не найдены</p>
       </div>
 
-      <div v-else class="space-y-4">
-        <div
-            v-for="user in users"
-            :key="user.id"
-            class="bg-white dark:bg-dark-surface rounded-xl shadow-md dark:shadow-lg p-6 transition-all duration-300 border-2 border-transparent hover:border-forest-mint dark:hover:border-forest-mint-dark"
-        >
-          <div class="flex justify-between items-start">
-            <div class="flex-1">
-              <div class="flex items-center gap-3 mb-2">
-                <h3 class="text-xl font-semibold text-forest-dark dark:text-dark-text transition-colors duration-300">
-                  {{ user.username }}
-                </h3>
-                <span
-                    class="px-2 py-1 rounded-full text-xs font-medium"
-                    :class="getRoleBadgeClass(user.role)"
-                >
-                  {{ getRoleLabel(user.role) }}
-                </span>
-                <span
-                    class="px-2 py-1 rounded-full text-xs font-medium"
-                    :class="user.is_active 
-                      ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' 
-                      : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'"
-                >
-                  {{ user.is_active ? 'Активен' : 'Неактивен' }}
-                </span>
-              </div>
-
-              <p class="text-gray-600 dark:text-dark-text-secondary transition-colors duration-300">
-                {{ user.email }}
-              </p>
-
-              <p v-if="user.last_login_at" class="text-sm text-gray-500 dark:text-gray-400 mt-2 transition-colors duration-300">
-                Последний вход: {{ formatDate(user.last_login_at) }}
-              </p>
-              <p v-else class="text-sm text-gray-500 dark:text-gray-400 mt-2 transition-colors duration-300">
-                Ещё не входил
-              </p>
-            </div>
-
-            <div v-if="user.role !== 'owner'" class="flex gap-2">
-              <button
-                  @click="handleEdit(user)"
-                  title="Редактировать"
-                  class="px-3 py-2 text-sm bg-gray-100 dark:bg-dark-border hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors duration-300"
-              >
-                ✏️
-              </button>
-              <button
-                  @click="handleResetPassword(user)"
-                  title="Сбросить пароль"
-                  class="px-3 py-2 text-sm bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-200 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-lg transition-colors duration-300"
-              >
-                🔑
-              </button>
-              <button
-                  @click="handleToggleActive(user)"
-                  :title="user.is_active ? 'Деактивировать' : 'Активировать'"
-                  class="px-3 py-2 text-sm rounded-lg transition-colors duration-300"
-                  :class="user.is_active 
-                    ? 'bg-yellow-100 dark:bg-yellow-900/30 hover:bg-yellow-200 dark:hover:bg-yellow-900/50 text-yellow-600 dark:text-yellow-400'
-                    : 'bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-900/50 text-green-600 dark:text-green-400'"
-              >
-                {{ user.is_active ? '🔒' : '🔓' }}
-              </button>
-              <button
-                  @click="handleDelete(user)"
-                  title="Удалить"
-                  class="px-3 py-2 text-sm bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-lg transition-colors duration-300"
-              >
-                🗑️
-              </button>
-            </div>
-
-            <div v-else class="text-sm text-gray-500 dark:text-gray-400 italic">
-              👑 Владелец (защищён)
-            </div>
-          </div>
-        </div>
+      <div v-else class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Пользователь</th>
+              <th>Роль</th>
+              <th>Статус</th>
+              <th>Последний вход</th>
+              <th><span class="sr-only">Действия</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="user in users" :key="user.id">
+              <td>
+                <div class="font-medium">{{ user.username }}</div>
+                <div class="text-ink-muted">{{ user.email }}</div>
+              </td>
+              <td><AppChip>{{ getRoleLabel(user.role) }}</AppChip></td>
+              <td><AppChip>{{ user.is_active ? 'Активен' : 'Неактивен' }}</AppChip></td>
+              <td class="text-ink-muted whitespace-nowrap">
+                {{ user.last_login_at ? formatDate(user.last_login_at) : 'Ещё не входил' }}
+              </td>
+              <td>
+                <div v-if="user.role !== 'owner'" class="flex justify-end gap-2">
+                  <AppButton icon="pi-pencil" title="Редактировать" aria-label="Редактировать" class="!px-3" @click="handleEdit(user)" />
+                  <AppButton icon="pi-key" title="Сбросить пароль" aria-label="Сбросить пароль" class="!px-3" @click="handleResetPassword(user)" />
+                  <AppButton
+                      :icon="user.is_active ? 'pi-lock' : 'pi-lock-open'"
+                      :title="user.is_active ? 'Деактивировать' : 'Активировать'"
+                      :aria-label="user.is_active ? 'Деактивировать' : 'Активировать'"
+                      class="!px-3"
+                      @click="handleToggleActive(user)"
+                  />
+                  <AppButton variant="danger" icon="pi-trash" title="Удалить" aria-label="Удалить" class="!px-3" @click="handleDelete(user)" />
+                </div>
+                <div v-else class="text-right text-ink-muted whitespace-nowrap">Владелец (защищён)</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </main>
 
@@ -144,6 +98,8 @@ import { useRouter } from 'vue-router'
 import { usersApi, type User } from '@/api/users'
 import UserEditDialog from '@/components/UserEditDialog.vue'
 import ResetPasswordDialog from '@/components/ResetPasswordDialog.vue'
+import AppButton from '@/components/ui/AppButton.vue'
+import AppChip from '@/components/ui/AppChip.vue'
 
 const router = useRouter()
 
@@ -232,15 +188,6 @@ const getRoleLabel = (role: string): string => {
     student: 'Студент',
   }
   return labels[role] || role
-}
-
-const getRoleBadgeClass = (role: string): string => {
-  const classes: Record<string, string> = {
-    owner: 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300',
-    admin: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300',
-    student: 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300',
-  }
-  return classes[role] || 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
 }
 
 const formatDate = (dateString: string): string => {
