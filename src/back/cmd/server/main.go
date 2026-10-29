@@ -115,6 +115,7 @@ func main() {
 	ticketHandler := handlers.NewTicketHandler(ticketService, documentService, courseRepo, logger)
 
 	authHandler := handlers.NewAuthHandler(userRepo, jwtManager, logger)
+	dumpHandler := handlers.NewDumpHandler(db, logger)
 
 	userService := services.NewUserService(userRepo)
 	userHandler := handlers.NewUserHandler(userService, logger)
@@ -132,7 +133,7 @@ func main() {
 		AllowOrigins:     []string{"http://localhost:5173", "https://localhost:5173"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
+		ExposeHeaders:    []string{"Content-Length", "Content-Disposition"},
 		AllowCredentials: true,
 	}))
 
@@ -198,6 +199,8 @@ func main() {
 		admin.DELETE("/exam-questions/:id", examQuestionHandler.Delete)
 
 		admin.POST("/courses/:id/tickets/generate", ticketHandler.GenerateTicketsDocument)
+
+		admin.GET("/dump", dumpHandler.Dump)
 	}
 
 	// Owner only - user management
