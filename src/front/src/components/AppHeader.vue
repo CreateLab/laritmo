@@ -24,6 +24,14 @@
         >
           Пользователи
         </AppButton>
+        <AppButton
+            v-if="authStore.isAdmin"
+            :disabled="dumping"
+            @click="handleDump"
+            title="Скачать полный дамп БД (JSON)"
+        >
+          {{ dumping ? 'Дамп…' : 'Дамп БД' }}
+        </AppButton>
         <AppButton @click="showChangePasswordDialog = true" title="Изменить пароль">
           Пароль
         </AppButton>
@@ -64,6 +72,16 @@
             <i class="pi pi-users" aria-hidden="true"></i>
             Пользователи
           </button>
+          <button
+              v-if="authStore.isAdmin"
+              type="button"
+              class="menu-item"
+              :disabled="dumping"
+              @click="runAction(handleDump)"
+          >
+            <i class="pi pi-download" aria-hidden="true"></i>
+            Дамп БД
+          </button>
           <button type="button" class="menu-item" @click="runAction(() => (showChangePasswordDialog = true))">
             <i class="pi pi-key" aria-hidden="true"></i>
             Пароль
@@ -90,6 +108,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { adminApi } from '@/api/admin'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import ThemeToggle from './ThemeToggle.vue'
 import ChangePasswordDialog from './ChangePasswordDialog.vue'
@@ -108,6 +127,30 @@ const menuRoot = ref<HTMLElement | null>(null)
 const handleLogout = () => {
   authStore.logout()
   router.push('/')
+}
+
+const dumping = ref(false)
+
+const handleDump = async () => {
+  if (dumping.value) return
+  dumping.value = true
+  try {
+    const response = await adminApi.dump()
+    const blob = new Blob([response.data], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `laritmo-dump-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('Failed to dump database:', error)
+    alert('Ошибка скачивания дампа БД')
+  } finally {
+    dumping.value = false
+  }
 }
 
 const handlePasswordChanged = () => {

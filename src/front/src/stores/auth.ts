@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import axios from '@/api/client'
+import { clearCache } from '@/api/cache'
 
 interface User {
     id: number
@@ -52,6 +53,7 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = null
         localStorage.removeItem('token')
         localStorage.removeItem('user')
+        clearCache()
         delete axios.defaults.headers.common['Authorization']
     }
 
